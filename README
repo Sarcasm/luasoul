@@ -1,4 +1,7 @@
 # -*-Org-*-
+#+STARTUP: showall
+#+AUTHOR:    Guillaume Papin
+#+EMAIL:     papin_g@epitech.net
 * Luasoul
 ** Description
    Luasoul is a [[Netsoul]] client written in C with the [[http://www.gnu.org/software/ncurses/][Ncurses]] library
