@@ -1,0 +1,57 @@
+# -*- mode: Org;-*-
+#+STARTUP: showall
+#+AUTHOR:    Guillaume Papin
+#+EMAIL:     papin_g@epitech.net
+* General [0%]
+  - [ ] unicode support
+	iconv ?
+	man 3X form
+	setlocale(LC_ALL, "");
+* Lua <-> Ncurses [0%]
+  - [ ] create window
+  - [ ] create dialog/conversation
+	a message box window and a form input field
+  - [ ] resize
+	resize forms and windows
+  - [ ] functions for colored strings
+	find a simple format
+  - [ ] get windows size
+  - [ ] hide/unhide dialog/conversation
+  - [ ] close
+  - [ ] Console dialog
+	for the splash screen
+	log unknow message from server
+	log lost connection
+	the input field send raw message :)
+	raw lua call ?
+	what else ?
+  - [ ] Menu with user entry
+** Signals
+   - [ ] resize
+	 when a sigwinch is received
+   - [ ] continue
+	 when a sigcont is received
+* Lua <-> Netsoul
+** Signals
+   - [ ] new message
+	 with the message argument
+   - [ ] buddy change state
+   - [ ] buddy typing/untyping
+   - [ ] new mail
+	 if it's possible
+* C [0%]
+  - [ ] set window title
+  - [ ] send WM urgent signal
+  - [ ] real XDG settings
+  - [ ] kerberos auth
+        http://rubysoul-ng.googlecode.com/svn-history/r68/trunk/lib/netsoul_message.rb
+	http://code.google.com/p/rubysoul/
+	http://www.koders.com/cpp/fid3451F1758041834887A66FAC55609053D48138BD.aspx?s=md5#L1
+	http://redmine.kakesa.net/projects/go-soul/repository/revisions/master/entry/gosoul_type.go
+	http://code.google.com/p/adiumsoul/source/browse/trunk/NSPMessages.m
+  - [ ] ask for password
+  - [ ] send content of a file
+	spawn an editor with a file to fill ?
+* Netsoul [0%]
+  - [ ] auto reconnect
+  - [ ] send big message
