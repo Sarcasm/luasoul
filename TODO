@@ -18,14 +18,14 @@
   - [ ] get windows size
   - [ ] hide/unhide dialog/conversation
   - [ ] close
-  - [ ] Console dialog
+  - [ ] console dialog
 	for the splash screen
 	log unknow message from server
 	log lost connection
 	the input field send raw message :)
 	raw lua call ?
 	what else ?
-  - [ ] Menu with user entry
+  - [ ] menu with user entry
 ** Signals
    - [ ] resize
 	 when a sigwinch is received
@@ -55,3 +55,6 @@
 * Netsoul [0%]
   - [ ] auto reconnect
   - [ ] send big message
+  - [ ] one watch_log call
+	for the moment it's a loop for each buddy
+
