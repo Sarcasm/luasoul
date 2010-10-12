@@ -7,6 +7,12 @@
 	iconv ?
 	man 3X form
 	setlocale(LC_ALL, "");
+  - [ ] read that
+	http://lua-users.org/wiki/LuaGenericCall
+	http://opengroup.org/onlinepubs/007908799/xcurses/
+  - [ ] check newtable
+	lua_createtable when you know the size
+	file:///usr/share/doc/lua/manual.html#lua_createtable
 * Lua <-> Ncurses [0%]
   - [ ] create window
   - [ ] create dialog/conversation
@@ -26,13 +32,18 @@
 	raw lua call ?
 	what else ?
   - [ ] menu with user entry
-** Signals
+  - [ ] history size
+	limit the number of lines in a window
+  - [ ] addstr call tostring
+  - [ ] add binding to panel_{above,below}
+  - [ ] man wechochar
+** Signals [0%]
    - [ ] resize
 	 when a sigwinch is received
    - [ ] continue
 	 when a sigcont is received
 * Lua <-> Netsoul
-** Signals
+** Signals [0%]
    - [ ] new message
 	 with the message argument
    - [ ] buddy change state
@@ -52,6 +63,8 @@
   - [ ] ask for password
   - [ ] send content of a file
 	spawn an editor with a file to fill ?
+  - [ ] change error functions
+	if the user interface is launch, send message to `console dialog'
 * Netsoul [0%]
   - [ ] auto reconnect
   - [ ] send big message
