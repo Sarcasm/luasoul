@@ -5,7 +5,7 @@
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Thu Oct  7 22:41:34 2010 Guillaume Papin
-** Last update Tue Oct 12 00:57:46 2010 Guillaume Papin
+** Last update Thu Oct 14 23:37:17 2010 Guillaume Papin
 */
 
 #ifndef _LUI_WINDOW_H_
@@ -22,20 +22,20 @@ typedef struct
 
 
   /* Constructor */
-int		ui_new_window(lua_State *L);
+int		lui_new_window(lua_State *L);
 
   /* Accessors utils */
 int		lui_window_accessors(lua_State *L, const t_index_wrap *p);
 
   /* Getters */
 int		lui_window_index(lua_State *L);
-int		ui_window_get_hidden(lua_State *L);
-int		ui_window_get_autoscroll(lua_State *L);
+int		lui_window_get_hidden(lua_State *L);
+int		lui_window_get_autoscroll(lua_State *L);
 
   /* Setters */
 int		lui_window_newindex(lua_State *L);
-int		ui_window_set_hidden(lua_State *L);
-int		ui_window_set_autoscroll(lua_State *L);
+int		lui_window_set_hidden(lua_State *L);
+int		lui_window_set_autoscroll(lua_State *L);
 
   /* Utils */
 int		lui_window_register(lua_State *L);
@@ -46,10 +46,12 @@ int		lui_window_register(lua_State *L);
 */
 
   /* Methods  */
-int		ui_refresh_window(lua_State *L);
-int		ui_addstr_window(lua_State *L);
-int		ui_scroll_window(lua_State *L);
+int		lui_refresh_window(lua_State *L);
+int		lui_addstr_window(lua_State *L);
+int		lui_scroll_window(lua_State *L);
 int		lui_window_tostring(lua_State *L);
+int		lui_clear_window(lua_State *L);
+int		lui_set_style_window(lua_State *L);
 
   /* Destructor */
 int		lui_destroy_window(lua_State *L);

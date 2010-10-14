@@ -6,17 +6,31 @@ header = ([=[
      --8<----- v0.42 -----
 ]=])
 
-color = {
-   black = 0,
-   red = 1,
-   green= 2,
-   yellow= 3,
-   blue= 4,
-   magenta = 5,
-   cyan = 6,
-   white = 7,
+local width, height = get_screen_size()
+
+local colors = {
+   BLACK	= 0,
+   RED		= 1,
+   GREEN	= 2,
+   YELLOW	= 3,
+   BLUE		= 4,
+   MAGENTA	= 5,
+   CYAN		= 6,
+   WHITE	= 7,
 }
 
+-- tab bar
+tab_bar = Window.new(width, 1, 0, 0)
+tab_bar:set_style{
+   bold = true,
+   underline = true,
+   blink = true,
+   reverse = true,
+   foreground = colors.WHITE,
+   background = colors.BLUE,
+}
+tab_bar:addstr("login_a | login_b | login_c | login_d")
+tab_bar:refresh()
 
 -- Status bar
 status_bar = Window.new(80, 24, 20, 20)
@@ -34,11 +48,15 @@ local keys = {
    h = function () status_bar.hidden = true end,
    -- 's' for show
    s = function () status_bar.hidden = false end,
+   -- 'L' for clear
+   L = function () status_bar:clear() end,
 
+   -- For the moment the scrolling is not relevant...
    -- <up> for scroll up
    KEY_UP = function () status_bar:scroll(1) end,
    -- <down> for scroll up
    KEY_DOWN = function () status_bar:scroll(-1) end,
+
    -- on sig winch
       KEY_RESIZE = function ()
 		   width, height = get_screen_size()

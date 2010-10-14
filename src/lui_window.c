@@ -1,11 +1,11 @@
 /*
 ** lui_window.c for luasoul in /home/papin_g
-** 
+**
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
-** 
+**
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Tue Oct 12 23:43:19 2010 Guillaume Papin
+** Last update Fri Oct 15 01:26:05 2010 Guillaume Papin
 */
 
 /*
@@ -32,7 +32,7 @@ PANEL	*check_window(lua_State *L, int n);
 
 static const luaL_reg	lui_window_class_methods[]=
   {
-    {"new",	ui_new_window},
+    {"new",	lui_new_window},
     {NULL,	NULL}
   };
 
@@ -41,7 +41,7 @@ static const luaL_reg	lui_window_class_methods[]=
   Create a new window
   Window.new()
 */
-int		ui_new_window(lua_State *L)
+int		lui_new_window(lua_State *L)
 {
   int width	= luaL_checkint(L, 1);
   int height	= luaL_checkint(L, 2);
@@ -55,6 +55,7 @@ int		ui_new_window(lua_State *L)
   win = newwin(height, width, begin_y, begin_x);
   wrefresh(win);
   pan = new_panel(win);
+
   update_panels();
   wnoutrefresh(win);
   doupdate();
@@ -73,7 +74,7 @@ int		ui_new_window(lua_State *L)
 
 /* Accessor utils */
 
-/* 
+/*
    Handler to the Window instance members,
    find the members and execute the associated function.
 
@@ -99,8 +100,8 @@ int		lui_window_accessors(lua_State *L, const t_index_wrap *p)
 /* this structure map members to getters() */
 static const t_index_wrap	lui_window_get_methods[]=
   {
-    {ui_window_get_hidden,	REG_MEMBER("hidden")},
-    {ui_window_get_autoscroll,	REG_MEMBER("autoscroll")},
+    {lui_window_get_hidden,	REG_MEMBER("hidden")},
+    {lui_window_get_autoscroll,	REG_MEMBER("autoscroll")},
     {NULL, NULL, 0}
   };
 
@@ -129,7 +130,7 @@ int		lui_window_index(lua_State *L)
   return lui_window_accessors(L, lui_window_get_methods);
 }
 
-/* 
+/*
    window.hidden -> true/false
    the window is visible?
 
@@ -137,7 +138,7 @@ int		lui_window_index(lua_State *L)
    1: the instance table
    2: the accessed key
 */
-int		ui_window_get_hidden(lua_State *L)
+int		lui_window_get_hidden(lua_State *L)
 {
   PANEL		*p;
 
@@ -146,7 +147,7 @@ int		ui_window_get_hidden(lua_State *L)
   return 1;
 }
 
-/* 
+/*
    window.autoscroll -> true/false
    the window can scroll?
 
@@ -154,7 +155,7 @@ int		ui_window_get_hidden(lua_State *L)
    1: the instance table
    2: the accessed key
 */
-int		ui_window_get_autoscroll(lua_State *L)
+int		lui_window_get_autoscroll(lua_State *L)
 {
   PANEL		*p;
 
@@ -170,8 +171,8 @@ int		ui_window_get_autoscroll(lua_State *L)
 /* this structure map members to setters() */
 static const t_index_wrap	lui_window_set_methods[]=
   {
-    {ui_window_set_hidden,	REG_MEMBER("hidden")},
-    {ui_window_set_autoscroll,	REG_MEMBER("autoscroll")},
+    {lui_window_set_hidden,	REG_MEMBER("hidden")},
+    {lui_window_set_autoscroll,	REG_MEMBER("autoscroll")},
     {NULL, NULL, 0}
   };
 
@@ -190,7 +191,7 @@ int		lui_window_newindex(lua_State *L)
   return lui_window_accessors(L, lui_window_set_methods);
 }
 
-/* 
+/*
    window.["hidden"] = true/false
    hide or unhide the window.
 
@@ -199,7 +200,7 @@ int		lui_window_newindex(lua_State *L)
    2: the accessed key
    3: the value to set
 */
-int		ui_window_set_hidden(lua_State *L)
+int		lui_window_set_hidden(lua_State *L)
 {
   PANEL		*p = check_window(L, 1);
 
@@ -211,7 +212,7 @@ int		ui_window_set_hidden(lua_State *L)
   return 0;			/* TODO: send something ? */
 }
 
-/* 
+/*
    window.["autoscroll"] = true/false
    enable/disable autoscrolling
 
@@ -220,7 +221,7 @@ int		ui_window_set_hidden(lua_State *L)
    2: the accessed key
    3: the value to set
 */
-int		ui_window_set_autoscroll(lua_State *L)
+int		lui_window_set_autoscroll(lua_State *L)
 {
   WINDOW	*w = panel_window(check_window(L, 1));
 
@@ -235,9 +236,11 @@ int		ui_window_set_autoscroll(lua_State *L)
 
 static const luaL_reg lui_window_instance_methods[]=
   {
-    {"addstr",		ui_addstr_window},
-    {"refresh",		ui_refresh_window},
-    {"scroll",		ui_scroll_window},
+    {"refresh",		lui_refresh_window},
+    {"clear",		lui_clear_window},
+    {"set_style",	lui_set_style_window},
+    {"addstr",		lui_addstr_window},
+    {"scroll",		lui_scroll_window},
     {"__index",		lui_window_index},
     {"__newindex",	lui_window_newindex},
     {"__gc",		lui_destroy_window},
@@ -303,7 +306,7 @@ PANEL		*check_window(lua_State *L, int n)
   window:refresh()
   refresh the window (update physical window to match virtual window).
 */
-int		ui_refresh_window(lua_State *L)
+int		lui_refresh_window(lua_State *L)
 {
   PANEL		*p;
 
@@ -314,10 +317,113 @@ int		ui_refresh_window(lua_State *L)
 }
 
 /*
+  window:clear()
+  clearing the window
+*/
+int		lui_clear_window(lua_State *L)
+{
+  PANEL		*p;
+
+  p = check_window(L, 1);
+
+  wclear(panel_window(p));
+  update_panels();
+  doupdate();
+  return 0;
+}
+
+/* describe an attribute with name and value */
+typedef struct
+{
+  const char	*name;
+  const int	value;
+}		t_style_attr;
+
+t_style_attr	attr_list[]=
+  {
+    {"normal",		A_NORMAL},
+    {"bold",		A_BOLD},
+    {"underline",	A_UNDERLINE},
+    {"blink",		A_BLINK},
+    {"standout",	A_STANDOUT},
+    {"reverse",		A_REVERSE},
+    {NULL,	0}
+  };
+
+/*
+  window:set_style{
+  bool	normal
+  bool	bold
+  bool	underline
+  bool	blink
+  bool	standout
+  bool	reverse
+  int		foreground
+  int		background
+  }
+
+  Stack:
+  2nd argument is a table who can contain all the attributes above
+
+  TODO: Optimisation ?
+*/
+int		lui_set_style_window(lua_State *L)
+{
+  PANEL		*p;
+  WINDOW	*w;
+  int		i;
+  int		fg = -1;	/* default color */
+  int		bg = -1;	/* default color */
+
+  p = check_window(L, 1);
+  w = panel_window(p);
+  if (! lua_istable(L, 2)) {
+    luaL_error(L, "invalid argument, table expected");
+    return 0;
+  }
+
+  for (i = 0; attr_list[i].name != NULL; i++)
+    {
+      lua_getfield(L, 2, attr_list[i].name); /* get key */
+
+      if (! lua_isnil(L, -1) && lua_isboolean(L, -1))
+	{
+	  if (lua_toboolean(L, -1)) /* t[key] = true */
+	    wattron(w, attr_list[i].value);
+	  else			/* t[key] = false */
+	    wattroff(w, attr_list[i].value);
+	}
+      lua_pop(L, 1);
+    }
+
+  /* foreground and background settings */
+  if (has_colors())		/* terminal is capable to output colors ? */
+    {
+      lua_getfield(L, 2, "foreground"); /* -2 */
+      lua_getfield(L, 2, "background"); /* -1 */
+
+      /* at least one of background/foreground property is set ? */
+      if (! lua_isnil(L, -1) && ! lua_isnil(L, -2))
+	{
+	  if (! lua_isnil(L, -2) && lua_isnumber(L, -2)) /* fg */
+	    fg = lua_tointeger(L, -2);
+
+	  if (! lua_isnil(L, -1) && lua_isnumber(L, -1)) /* bg */
+	    bg = lua_tointeger(L, -1);
+
+	  init_pair(1, fg, bg);
+	  wbkgd(w, COLOR_PAIR(1));
+	}
+    }
+
+  return 0;
+}
+
+/*
   window:addstr(s)
   put a string in the virtual window
 */
-int		ui_addstr_window(lua_State *L)
+int		lui_addstr_window(lua_State *L)
 {
   PANEL		*p;
   char		*str;
@@ -336,7 +442,7 @@ int		ui_addstr_window(lua_State *L)
   if nlines > 0 scroll up nlines
   otherwise scroll down nlines
 */
-int		ui_scroll_window(lua_State *L)
+int		lui_scroll_window(lua_State *L)
 {
   PANEL		*p;
   WINDOW	*w;
@@ -351,7 +457,7 @@ int		ui_scroll_window(lua_State *L)
   return 0;
 }
 
-/* 
+/*
    tostring(window), window.__tostring
    just print the type and pointer address of the Window
 */
@@ -363,7 +469,7 @@ int		lui_window_tostring(lua_State *L)
 
 /* Destructor */
 
-/* 
+/*
    window.__gc
    destroy the window
 
