@@ -13,6 +13,22 @@
   - [ ] check newtable
 	lua_createtable when you know the size
 	file:///usr/share/doc/lua/manual.html#lua_createtable
+  - [ ] in ncurses-5.7/test/ncurses.c
+	test the fullwidth_of() function, for wide characters support
+  - [ ] grep TODO and FIXME...
+  - [ ] try replace select() by:
+	kqueue(), [p]poll(), pselect() ?
+  - [ ] use luaL_ref() for calling lua function ?
+  - [ ] redo the directory tree
+	utils/ncurses.h
+	utils/lua.h
+	ui/lua.h
+	ui/ncurses.h
+	...
+  - [ ] Update mail adress
+  - [ ] better signals handling
+	RTFM: sigprocmask pselect
+  - [ ] Had ifdef SIGWINCH when
 * Lua <-> Ncurses [0%]
   - [ ] create window
   - [ ] create dialog/conversation
@@ -37,6 +53,15 @@
   - [ ] addstr call tostring
   - [ ] add binding to panel_{above,below}
   - [ ] man wechochar
+  - [ ] italic ?
+  - [ ] unset color in set_win_attr()
+  - [ ] set a function to redraw the entire screen
+	man clearok
+  - [ ] Bind define_key()
+  - [ ] Use getxy() and create a userdata/table cursor for each window
+	contening x, y, visibility ?
+	Where each of this fields have a getter and a setter
+  - [ ] lua_pushlightuserdata() on Constructors ?
 ** Signals [0%]
    - [ ] resize
 	 when a sigwinch is received

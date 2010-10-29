@@ -1,21 +1,23 @@
 /*
-** lua_utils.c for luasoul in /home/papin_g
+** utils.c for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Wed Oct  6 21:02:00 2010 Guillaume Papin
-** Last update Fri Oct 15 00:15:59 2010 Guillaume Papin
+** Last update Tue Oct 26 00:26:32 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "utils.h"
-#include "lua_utils.h"
 #include "lua_ui.h"
-#include "lui_window.h"
+#include "utils.h"
+#include "lua/lua_utils.h"
+#include "ui/style.h"
+#include "ui/window.h"
+#include "ui/input.h"
 
 /**
  * Create the lua environnement.
@@ -34,7 +36,16 @@ lua_State	*load_lua(void)
   /* open standard libs */
   luaL_openlibs(L);
   init_lua_ui(L);
+
+  /* add style */
+  lui_style_register(L);
+
+  /* add ncurses window binding */
   lui_window_register(L);
+
+  /* add ncurses form/field/input binding */
+  lui_input_register(L);
+
   return L;
 }
 
@@ -79,6 +90,8 @@ void		register_function(lua_State *L, t_lua_function functions[])
 /*
   source: Programming in Lua
   url: http://www.lua.org/pil/25.3.html
+
+  TODO: Return the number of results sent to the Lua VM
 */
 void		call_lua_function(lua_State *L,const char *func,
 				  const char *sig, ...)

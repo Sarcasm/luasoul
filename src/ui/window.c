@@ -1,11 +1,11 @@
 /*
-** lui_window.c for luasoul in /home/papin_g
+** window.c for luasoul in /home/papin_g
 **
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Fri Oct 15 01:26:05 2010 Guillaume Papin
+** Last update Tue Oct 26 23:12:52 2010 Guillaume Papin
 */
 
 /*
@@ -14,16 +14,14 @@
   http://lua-users.org/wiki/ObjectProperties
 */
 
-#define WINDOW_CLASS	"Window"	  /* class table name */
-#define WINDOW_INST	"Window-instance" /* instance table name */
-
 #include <stdlib.h>
 #include <string.h>
 #include <curses.h>
 #include <panel.h>
-#include "lua_utils.h"
-#include "ncurses_utils.h"
-#include "lui_window.h"
+#include "lua/lua_utils.h"
+#include "ui/ui_utils.h"
+#include "ui/window.h"
+#include "ui/style.h"
 
 /* not in the header because need curses.h */
 PANEL	*check_window(lua_State *L, int n);
@@ -32,8 +30,8 @@ PANEL	*check_window(lua_State *L, int n);
 
 static const luaL_reg	lui_window_class_methods[]=
   {
-    {"new",	lui_new_window},
-    {NULL,	NULL}
+    {"new",		lui_new_window},
+    {NULL,		NULL}
   };
 
 
@@ -71,30 +69,6 @@ int		lui_new_window(lua_State *L)
 }
 
 
-
-/* Accessor utils */
-
-/*
-   Handler to the Window instance members,
-   find the members and execute the associated function.
-
-   Stack:
-   1: the instance table
-   2: the accessed key
-   3: the value to set (optional, just for setters)
-*/
-int		lui_window_accessors(lua_State *L, const t_index_wrap *p)
-{
-  const char	*key = luaL_checkstring(L, 2);
-  const size_t	len = strlen(key);
-
-  for (; p->name != NULL; p++)
-    if (p->len == len &&
-	! strcmp(p->name, key))
-      return p->func(L);
-  return 0;			/* nothing is returned, TODO: maybe send nil ? */
-}
-
 /* Getters */
 
 /* this structure map members to getters() */
@@ -102,7 +76,9 @@ static const t_index_wrap	lui_window_get_methods[]=
   {
     {lui_window_get_hidden,	REG_MEMBER("hidden")},
     {lui_window_get_autoscroll,	REG_MEMBER("autoscroll")},
-    {NULL, NULL, 0}
+    {lui_window_get_cursor_x,	REG_MEMBER("cursor_x")}, /* FIXME: find another name */
+    {lui_window_get_cursor_y,	REG_MEMBER("cursor_y")}, /* FIXME: find another name */
+    {NULL,			NULL, 0}
   };
 
 
@@ -121,46 +97,76 @@ int		lui_window_index(lua_State *L)
   lua_getfield(L, -1, key);
 
   /* Either key is name of a method in the metatable */
-  if(!lua_isnil(L, -1))
+  if (!lua_isnil(L, -1))
     return 1;
 
   /* ... or its a field access, so recall as self.get(self, value). */
   lua_settop(L, 2);   /* restore the initial call state, arg1, arg2 */
 
-  return lui_window_accessors(L, lui_window_get_methods);
+  return lua_oo_accessors(L, lui_window_get_methods);
 }
 
 /*
-   window.hidden -> true/false
-   the window is visible?
+  window.hidden -> true/false
+  the window is visible?
 
-   Stack:
-   1: the instance table
-   2: the accessed key
+  Stack:
+  1: the instance table
+  2: the accessed key
 */
 int		lui_window_get_hidden(lua_State *L)
 {
-  PANEL		*p;
+  PANEL		*p = check_window(L, 1);
 
-  p = check_window(L, 1);
   lua_pushboolean(L, (panel_hidden(p) == TRUE));
   return 1;
 }
 
 /*
-   window.autoscroll -> true/false
-   the window can scroll?
+  window.autoscroll -> true/false
+  the window can scroll?
 
-   Stack:
-   1: the instance table
-   2: the accessed key
+  Stack:
+  1: the instance table
+  2: the accessed key
 */
 int		lui_window_get_autoscroll(lua_State *L)
 {
-  PANEL		*p;
+  PANEL		*p = check_window(L, 1);
 
-  p = check_window(L, 1);
   lua_pushboolean(L, (is_scrollok(panel_window(p)) == TRUE));
+  return 1;
+}
+
+/*
+  window.cursor.x
+  return the column number of the cursor
+
+  Stack:
+  1: the instance table
+  2: the accessed key
+*/
+int		lui_window_get_cursor_x(lua_State *L)
+{
+  PANEL		*p = check_window(L, 1);
+
+  lua_pushinteger(L, getcurx(panel_window(p)));
+  return 1;
+}
+
+/*
+  window.cursor.y
+  return the row number of the cursor
+
+  Stack:
+  1: the instance table
+  2: the accessed key
+*/
+int		lui_window_get_cursor_y(lua_State *L)
+{
+  PANEL		*p = check_window(L, 1);
+
+  lua_pushinteger(L, getcury(panel_window(p)));
   return 1;
 }
 
@@ -188,17 +194,17 @@ static const t_index_wrap	lui_window_set_methods[]=
 */
 int		lui_window_newindex(lua_State *L)
 {
-  return lui_window_accessors(L, lui_window_set_methods);
+  return lua_oo_accessors(L, lui_window_set_methods);
 }
 
 /*
-   window.["hidden"] = true/false
-   hide or unhide the window.
+  window.["hidden"] = true/false
+  hide or unhide the window.
 
-   Stack:
-   1: the instance table
-   2: the accessed key
-   3: the value to set
+  Stack:
+  1: the instance table
+  2: the accessed key
+  3: the value to set
 */
 int		lui_window_set_hidden(lua_State *L)
 {
@@ -213,13 +219,13 @@ int		lui_window_set_hidden(lua_State *L)
 }
 
 /*
-   window.["autoscroll"] = true/false
-   enable/disable autoscrolling
+  window["autoscroll"] = true/false
+  enable/disable autoscrolling
 
-   Stack:
-   1: the instance table
-   2: the accessed key
-   3: the value to set
+  Stack:
+  1: the instance table
+  2: the accessed key
+  3: the value to set
 */
 int		lui_window_set_autoscroll(lua_State *L)
 {
@@ -238,8 +244,12 @@ static const luaL_reg lui_window_instance_methods[]=
   {
     {"refresh",		lui_refresh_window},
     {"clear",		lui_clear_window},
-    {"set_style",	lui_set_style_window},
+    {"resize",		lui_resize_window},
+    {"move",		lui_move_window},
+    {"set_style",	lui_set_window_style},
+    {"set_font",	lui_set_window_attr},
     {"addstr",		lui_addstr_window},
+    {"print_colored",	lui_print_colored_window},
     {"scroll",		lui_scroll_window},
     {"__index",		lui_window_index},
     {"__newindex",	lui_window_newindex},
@@ -299,7 +309,6 @@ PANEL		*check_window(lua_State *L, int n)
 }
 
 
-
 /* Methods  */
 
 /*
@@ -332,89 +341,91 @@ int		lui_clear_window(lua_State *L)
   return 0;
 }
 
-/* describe an attribute with name and value */
-typedef struct
-{
-  const char	*name;
-  const int	value;
-}		t_style_attr;
-
-t_style_attr	attr_list[]=
-  {
-    {"normal",		A_NORMAL},
-    {"bold",		A_BOLD},
-    {"underline",	A_UNDERLINE},
-    {"blink",		A_BLINK},
-    {"standout",	A_STANDOUT},
-    {"reverse",		A_REVERSE},
-    {NULL,	0}
-  };
-
 /*
-  window:set_style{
-  bool	normal
-  bool	bold
-  bool	underline
-  bool	blink
-  bool	standout
-  bool	reverse
-  int		foreground
-  int		background
+  window:set_win_style{
+  bold = true,
+  foreground = 3,
+  ...
   }
+
+  set the global style of the window, take effect immediatly for each row
+  of the window
 
   Stack:
   2nd argument is a table who can contain all the attributes above
 
   TODO: Optimisation ?
 */
-int		lui_set_style_window(lua_State *L)
-{
-  PANEL		*p;
-  WINDOW	*w;
-  int		i;
-  int		fg = -1;	/* default color */
-  int		bg = -1;	/* default color */
 
-  p = check_window(L, 1);
-  w = panel_window(p);
-  if (! lua_istable(L, 2)) {
-    luaL_error(L, "invalid argument, table expected");
-    return 0;
+int		lui_set_window_style(lua_State *L)
+{
+  WINDOW	*w = panel_window(check_window(L, 1));
+  t_style	s;
+
+  get_style(L, 2, s);
+  wbkgd(w, s.on & ~s.off);
+  return 0;
+}
+
+/*
+  window:set_win_style{
+  bold = true,
+  foreground = 3,
+  ...
   }
 
-  for (i = 0; attr_list[i].name != NULL; i++)
-    {
-      lua_getfield(L, 2, attr_list[i].name); /* get key */
+  set the global style of the window, take effect immediatly for each row
+  of the window
 
-      if (! lua_isnil(L, -1) && lua_isboolean(L, -1))
-	{
-	  if (lua_toboolean(L, -1)) /* t[key] = true */
-	    wattron(w, attr_list[i].value);
-	  else			/* t[key] = false */
-	    wattroff(w, attr_list[i].value);
-	}
-      lua_pop(L, 1);
-    }
+  Stack:
+  2nd argument is a table who can contain all the attributes above
 
-  /* foreground and background settings */
-  if (has_colors())		/* terminal is capable to output colors ? */
-    {
-      lua_getfield(L, 2, "foreground"); /* -2 */
-      lua_getfield(L, 2, "background"); /* -1 */
+  TODO: Optimisation ?
+*/
+int		lui_set_window_attr(lua_State *L)
+{
+  WINDOW	*w = panel_window(check_window(L, 1));
+  t_style	s;
 
-      /* at least one of background/foreground property is set ? */
-      if (! lua_isnil(L, -1) && ! lua_isnil(L, -2))
-	{
-	  if (! lua_isnil(L, -2) && lua_isnumber(L, -2)) /* fg */
-	    fg = lua_tointeger(L, -2);
+  get_style(L, 2, s);
+  wattron(w, s.on);
+  wattroff(w, s.off);
+  return 0;
+}
 
-	  if (! lua_isnil(L, -1) && lua_isnumber(L, -1)) /* bg */
-	    bg = lua_tointeger(L, -1);
+/*
+  window:print_colored(s, {
+  bold = true,
+  foreground = 3,
+  ...
+  })
 
-	  init_pair(1, fg, bg);
-	  wbkgd(w, COLOR_PAIR(1));
-	}
-    }
+  Stack:
+  2nd the string to display
+  3rd argument is a table who can contain all the attributes above
+
+  TODO: Optimisation ?
+*/
+int		lui_print_colored_window(lua_State *L)
+{
+  WINDOW	*w = panel_window(check_window(L, 1));
+  const char	*s = luaL_checkstring(L, 2); /* string to display */
+  attr_t	attr;
+  short		pair;
+  t_style	style;
+
+  /* save current state */
+  wattr_get(w, &attr, &pair, NULL);
+
+  get_style(L, 3, style);
+  wattron(w, style.on);
+  wattroff(w, style.off);
+
+  /* put the string */
+  waddstr(w, s);
+
+  /* restore old attr */
+  wattr_set(w, attr, pair, NULL);
 
   return 0;
 }
@@ -434,6 +445,43 @@ int		lui_addstr_window(lua_State *L)
   w = panel_window(p);
 
   waddstr(w, str);
+  return 0;
+}
+
+/*
+  window:resize(width, height)
+  resize the window
+*/
+int		lui_resize_window(lua_State *L)
+{
+  PANEL		*p;
+  WINDOW	*w;
+  const int	width = luaL_checkint(L, 2);
+  const int	height = luaL_checkint(L, 3);
+
+  p = check_window(L, 1);
+  w = panel_window(p);
+
+  if (width <= 0 && height <= 0)
+    {
+      luaL_error(L, "can't resize window: invalid dimension");
+      return 0;
+    }
+  wresize(w, height, width);
+  return 0;
+}
+
+/*
+  window:move(x, y)
+  move the window
+*/
+int		lui_move_window(lua_State *L)
+{
+  PANEL		*p = check_window(L, 1);
+  const int	x = luaL_checkint(L, 2);
+  const int	y = luaL_checkint(L, 3);
+
+  move_panel(p, y, x);
   return 0;
 }
 
@@ -458,8 +506,8 @@ int		lui_scroll_window(lua_State *L)
 }
 
 /*
-   tostring(window), window.__tostring
-   just print the type and pointer address of the Window
+  tostring(window), window.__tostring
+  just print the type and pointer address of the Window
 */
 int		lui_window_tostring(lua_State *L)
 {
@@ -470,12 +518,12 @@ int		lui_window_tostring(lua_State *L)
 /* Destructor */
 
 /*
-   window.__gc
-   destroy the window
+  window.__gc
+  destroy the window
 
-   Stack:
-   1: the instance table
-   2: the accessed key
+  Stack:
+  1: the instance table
+  2: the accessed key
 */
 int		lui_destroy_window(lua_State *L)
 {
@@ -483,11 +531,8 @@ int		lui_destroy_window(lua_State *L)
   WINDOW	*w;
 
   p = check_window(L, 1);
-  if (p != NULL)
-    {
-      w = panel_window(p);
-      del_panel(p);
-      delwin(w);
-    }
+  w = panel_window(p);
+  del_panel(p);
+  delwin(w);
   return 0;
 }

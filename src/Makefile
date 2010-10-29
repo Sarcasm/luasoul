@@ -5,7 +5,7 @@
 ## Login   <papin_g@epitech.net>
 ## 
 ## Started on  Wed Oct  6 00:43:13 2010 Guillaume Papin
-## Last update Tue Oct 12 23:44:01 2010 Guillaume Papin
+## Last update Thu Oct 28 20:25:47 2010 Guillaume Papin
 ##
 
 NAME		= luasoul
@@ -13,10 +13,13 @@ NAME		= luasoul
 INC		= ./
 
 SRCS		= ./lua_ui.c	\
-		./lui_window.c	\
 		./utils.c	\
-		./ncurses_utils.c	\
-		./lua_utils.c	\
+		./lua/ooutils.c	\
+		./lua/lua_utils.c	\
+		./ui/window.c	\
+		./ui/style.c	\
+		./ui/input.c	\
+		./ui/ui_utils.c	\
 		./luasoul.c
 
 OBJ		= $(SRCS:.c=.o)
@@ -24,13 +27,11 @@ OBJ		= $(SRCS:.c=.o)
 # _BSD_SOURCE for strdup()
 CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
 		-Wstrict-prototypes -Wuninitialized -I$(INC) -I../md5/ \
-		-D_BSD_SOURCE
+		-D_BSD_SOURCE -D_POSIX_SOURCE
 
 DEBUG		= -ggdb3
 
-DEBUG		= -ggdb3
-
-LDFLAGS		= -llua -lmenu -lform -lpanel -lncurses -lssl
+LDFLAGS		= -llua -lform -lpanel -lncurses
 
 CC		?= gcc
 

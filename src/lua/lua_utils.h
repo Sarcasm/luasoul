@@ -1,11 +1,11 @@
 /*
-** lua_utils.h for luasoul in /home/papin_g
+** utils.h for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Wed Oct  6 20:54:25 2010 Guillaume Papin
-** Last update Fri Oct 15 00:17:53 2010 Guillaume Papin
+** Last update Sun Oct 24 12:13:10 2010 Guillaume Papin
 */
 
 #ifndef _LUA_UTILS_H_
@@ -15,8 +15,6 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-
-
 
 typedef struct		s_lua_function
 {

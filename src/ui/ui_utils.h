@@ -1,15 +1,15 @@
 /*
-** ncurses_utils.h for luasoul in /home/papin_g
+** utils.h for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Wed Oct  6 22:39:43 2010 Guillaume Papin
-** Last update Thu Oct  7 22:41:23 2010 Guillaume Papin
+** Last update Mon Oct 25 21:50:55 2010 Guillaume Papin
 */
 
-#ifndef _NCURSES_UTILS_H_
-#define _NCURSES_UTILS_H_
+#ifndef _UI_UTILS_H_
+#define _UI_UTILS_H_
 
 /*
    source:
@@ -27,4 +27,4 @@ int	init_ui(void);
 void	ui_close(void);
 void	ui_get_screen_size(int *width, int *height);
 
-#endif /* _NCURSES_UTILS_H_ */
+#endif /* _UI_UTILS_H_ */

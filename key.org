@@ -1,0 +1,26 @@
+# -*- mode: Org;-*-
+#+STARTUP: showall
+#+AUTHOR:    Guillaume Papin
+#+EMAIL:     papin_g@epitech.net
+* Bind the following key[group]s [0/5]
+  - [ ] Common prefix:
+	'M-' for meta
+	'C-' for ctrl
+	'S-' for shift
+  - [ ] arrow-key to:
+	<up>, <left>...
+  - [ ] few control keys
+	<delete>, <backspace>, <insert>...
+  - [ ] Bound (C|M|S)-<special keys> where special keys are:
+	- arrows keys
+	- END, HOME, PGUP, PGDOWN...
+  - [ ] rename few keys:
+    - TAB for ^I
+    - RET for ^M || ^J
+    - SPC for space
+    - ESC for escape
+  - [ ] On KEY_RESIZE call a Lua function
+  - [ ] Accept single ESC key ?
+* Error
+  Why some key like "M-2" have a `dead time' when keypad() is enable ?
+  It's ESCDELAY ?

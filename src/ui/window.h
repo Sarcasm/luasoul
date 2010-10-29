@@ -1,36 +1,30 @@
 /*
-** lui_window.h for luasoul in /home/papin_g
+** window.h for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Thu Oct  7 22:41:34 2010 Guillaume Papin
-** Last update Thu Oct 14 23:37:17 2010 Guillaume Papin
+** Last update Mon Oct 25 22:45:23 2010 Guillaume Papin
 */
 
-#ifndef _LUI_WINDOW_H_
-#define _LUI_WINDOW_H_
+#ifndef _UI_WINDOW_H_
+#define _UI_WINDOW_H_
 
+#include "lua/ooutils.h"
 
-#define	REG_MEMBER(name) name, (sizeof(name) -1)
-typedef struct
-{
-  lua_CFunction	func;		/* TODO: personal type here ? */
-  const char	*name;
-  const size_t	len;
-}		t_index_wrap;
-
+#define WINDOW_CLASS	"Window"	  /* class table name */
+#define WINDOW_INST	"Window-instance" /* instance table name */
 
   /* Constructor */
 int		lui_new_window(lua_State *L);
-
-  /* Accessors utils */
-int		lui_window_accessors(lua_State *L, const t_index_wrap *p);
 
   /* Getters */
 int		lui_window_index(lua_State *L);
 int		lui_window_get_hidden(lua_State *L);
 int		lui_window_get_autoscroll(lua_State *L);
+int		lui_window_get_cursor_x(lua_State *L);
+int		lui_window_get_cursor_y(lua_State *L);
 
   /* Setters */
 int		lui_window_newindex(lua_State *L);
@@ -47,13 +41,17 @@ int		lui_window_register(lua_State *L);
 
   /* Methods  */
 int		lui_refresh_window(lua_State *L);
+int		lui_resize_window(lua_State *L);
+int		lui_move_window(lua_State *L);
 int		lui_addstr_window(lua_State *L);
 int		lui_scroll_window(lua_State *L);
 int		lui_window_tostring(lua_State *L);
 int		lui_clear_window(lua_State *L);
-int		lui_set_style_window(lua_State *L);
+int		lui_set_window_style(lua_State *L);
+int		lui_set_window_attr(lua_State *L);
+int		lui_print_colored_window(lua_State *L);
 
   /* Destructor */
 int		lui_destroy_window(lua_State *L);
 
-#endif /* _LUI_WINDOW_H_ */
+#endif /* _UI_WINDOW_H_ */

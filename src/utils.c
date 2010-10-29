@@ -5,7 +5,7 @@
 ** Login   <papin_g@epitech.net>
 ** 
 ** Started on  Sun Sep 19 13:17:56 2010 Guillaume Papin
-** Last update Mon Oct 11 22:56:32 2010 Guillaume Papin
+** Last update Sat Oct 23 11:02:06 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -23,6 +23,27 @@ void		error(const char *fmt, ...)
   fprintf(stderr, "error: ");
   vfprintf(stderr, fmt, argp);
   va_end(argp);
+}
+
+
+/*
+  FIXME: add ccompilation time flag here for include or not
+*/
+char		*strndup(const char *s, size_t n)
+{
+  char		*res;
+  size_t	len = strlen(s);
+
+  if (n > len)
+    n = len;
+  res = malloc((n + 1) * sizeof(*res));
+  if (res != NULL)
+    {
+      res[n] = '\0';
+      while (n--)
+	res[n] = s[n];
+    }
+  return res;
 }
 
 char		*get_rc(void)
