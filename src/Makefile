@@ -5,7 +5,7 @@
 ## Login   <papin_g@epitech.net>
 ## 
 ## Started on  Wed Oct  6 00:43:13 2010 Guillaume Papin
-## Last update Thu Oct 28 20:25:47 2010 Guillaume Papin
+## Last update Sat Oct 30 15:29:26 2010 Guillaume Papin
 ##
 
 NAME		= luasoul
@@ -45,7 +45,7 @@ $(NAME)		: $(OBJ)
 		@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 		@echo -e "  [OUT]\t\t\e[1;34m$(NAME)\e[0m"
 
-.c.o	:
+%.o		: %.c
 		@echo -e "  [CC]\t\t$<"
 		@$(CC) $(CFLAGS) -o $@ -c $<
 
