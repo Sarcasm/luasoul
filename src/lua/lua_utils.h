@@ -2,10 +2,10 @@
 ** utils.h for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 20:54:25 2010 Guillaume Papin
-** Last update Sun Oct 24 12:13:10 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:56 2010 Guillaume Papin
 */
 
 #ifndef _LUA_UTILS_H_

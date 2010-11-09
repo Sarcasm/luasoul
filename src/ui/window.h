@@ -2,10 +2,10 @@
 ** window.h for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 22:41:34 2010 Guillaume Papin
-** Last update Mon Oct 25 22:45:23 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:15 2010 Guillaume Papin
 */
 
 #ifndef _UI_WINDOW_H_
@@ -28,6 +28,7 @@ int		lui_window_get_cursor_y(lua_State *L);
 
   /* Setters */
 int		lui_window_newindex(lua_State *L);
+int		lui_window_set_style(lua_State *L);
 int		lui_window_set_hidden(lua_State *L);
 int		lui_window_set_autoscroll(lua_State *L);
 
@@ -43,12 +44,11 @@ int		lui_window_register(lua_State *L);
 int		lui_refresh_window(lua_State *L);
 int		lui_resize_window(lua_State *L);
 int		lui_move_window(lua_State *L);
+int		lui_addch_window(lua_State *L);
 int		lui_addstr_window(lua_State *L);
 int		lui_scroll_window(lua_State *L);
 int		lui_window_tostring(lua_State *L);
 int		lui_clear_window(lua_State *L);
-int		lui_set_window_style(lua_State *L);
-int		lui_set_window_attr(lua_State *L);
 int		lui_print_colored_window(lua_State *L);
 
   /* Destructor */

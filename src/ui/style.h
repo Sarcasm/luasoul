@@ -2,10 +2,10 @@
 ** style.h for luasoul in /home/papin_g/projects/luasoul/src
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Mon Oct 25 21:50:43 2010 Guillaume Papin
-** Last update Tue Oct 26 23:11:24 2010 Guillaume Papin
+** Last update Tue Nov  9 23:55:23 2010 Guillaume Papin
 */
 
 #ifndef _UI_STYLE_H_
@@ -31,11 +31,8 @@ typedef struct
 int		lui_new_style(lua_State *L);
 
   /* Accessors utils */
-
   /* Getters */
-
   /* Setters */
-
   /* Utils */
 /*
   Set a new (definitive, used more than once) style
@@ -43,7 +40,7 @@ int		lui_new_style(lua_State *L);
   n - Position on the stack of a Style, or a Lua table
   s - A structure (not a pointer) to fill
 */
-#define	get_style(L, n, s)	  if (lua_islightuserdata(L, n))	\
+#define	get_style(L, n, s)	  if (lua_isuserdata(L, n))		\
     s = *check_style(L, n);						\
   else									\
     table_to_style(L, n, &s)
@@ -52,7 +49,6 @@ t_style		*check_style(lua_State *L, int n);
 int		lui_style_register(lua_State *L);
 void		table_to_style(lua_State *L, int n, t_style *s);
 
-  /* Methods  */
 
   /* Destructor */
 

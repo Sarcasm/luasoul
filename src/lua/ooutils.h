@@ -2,10 +2,10 @@
 ** ooutils.h for luasoul	 in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Fri Oct 22 23:42:55 2010 Guillaume Papin
-** Last update Sun Oct 24 12:11:15 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:55 2010 Guillaume Papin
 */
 
 #ifndef _LUA_OOUTILS_H_

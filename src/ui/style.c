@@ -1,11 +1,11 @@
 /*
 ** style.c for luasoul in /home/papin_g/projects/luasoul/src
-** 
+**
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
-** 
+** Login   <guillaume.papin@epitech.eu>
+**
 ** Started on  Mon Oct 25 21:49:04 2010 Guillaume Papin
-** Last update Tue Oct 26 23:14:31 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:53 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -40,11 +40,12 @@ static const luaL_reg	lui_style_class_methods[]=
 */
 int		lui_new_style(lua_State *L)
 {
-  t_style	*s = malloc(sizeof(*s));
+  t_style	*s;
+
+  s = (t_style *) lua_newuserdata(L, sizeof(*s));
 
   /* transform received table into a new style */
   table_to_style(L, 1, s);
-  lua_pushlightuserdata(L, s);
 
   /* set instance metatable to registered methods */
   luaL_getmetatable(L, STYLE_INST);
@@ -65,9 +66,8 @@ t_style		*check_style(lua_State *L, int n)
 {
   t_style	*s;
 
-  /* luaL_checktype(L, n, LUA_TUSERDATA); */
-  /* s = (t_style *) luaL_checkudata(L, n, STYLE_INST); */
-  s = (t_style *) lua_touserdata(L, n);
+  luaL_checktype(L, n, LUA_TUSERDATA);
+  s = (t_style *) luaL_checkudata(L, n, STYLE_INST);
   if (s == NULL)
     luaL_typerror(L, n, STYLE_INST);
   return s;
@@ -137,27 +137,26 @@ t_style_attr	attr_list[]=
     {NULL,		0}
   };
 
-/*
-  transform a table to an understandable value for ncurses functions
-
-  bool	normal
-  bool	bold
-  bool	underline
-  bool	blink
-  bool	standout
-  bool	reverse
-  int	foreground
-  int	background
-
-  @param: L
-  @param: n	position of the table on the stack
-
-  the next following parameters are filled by the function
-  @param: on	attributes to turn on
-  @param: off	attributes to turn off
-
-  FIXME: vocabulary...?
-*/
+/**
+ * transform a table to an understandable value for ncurses functions
+ *
+ * bool	normal
+ * bool	bold
+ * bool	underline
+ * bool	blink
+ * bool	standout
+ * bool	reverse
+ * int	foreground
+ * int	background
+ *
+ * @param: L
+ * @param: n	position of the table on the stack
+ *
+ * the following parameter is filled by the function
+ * @param: s	attributes to turn on or off
+ *
+ * FIXME: vocabulary...?
+ */
 void	table_to_style(lua_State *L, int n, t_style *s)
 {
   int		i;
@@ -168,7 +167,7 @@ void	table_to_style(lua_State *L, int n, t_style *s)
   s->off = A_NORMAL;
 
   if (! lua_istable(L, n)) {
-    luaL_error(L, "invalid argument, table expected");
+    luaL_error(L, "invalid argument, table expected (got %s)", lua_typename(L, lua_type(L, n)));
   }
 
   for (i = 0; attr_list[i].name != NULL; i++)

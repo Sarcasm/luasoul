@@ -4,6 +4,8 @@
 #+EMAIL:     papin_g@epitech.net
 * General [0%]
   - [ ] unicode support
+	http://mail.nl.linux.org/linux-utf8/2004-08/msg00001.html
+	http://lua-users.org/wiki/LuaUnicode
 	iconv ?
 	man 3X form
 	setlocale(LC_ALL, "");
@@ -19,16 +21,14 @@
   - [ ] try replace select() by:
 	kqueue(), [p]poll(), pselect() ?
   - [ ] use luaL_ref() for calling lua function ?
-  - [ ] redo the directory tree
-	utils/ncurses.h
-	utils/lua.h
-	ui/lua.h
-	ui/ncurses.h
-	...
-  - [ ] Update mail adress
+  - [ ] update mail in headers (and git ?)
   - [ ] better signals handling
 	RTFM: sigprocmask pselect
-  - [ ] Had ifdef SIGWINCH when
+  - [ ] had ifdef SIGWINCH when used
+  - [ ] bind form_driver() don't use direct call
+  - [ ] incorrect usage of isprint() ?
+	http://en.wikipedia.org/wiki/Ctype.h
+	read the end, the integer should be an unsigned char ?
 * Lua <-> Ncurses [0%]
   - [ ] create window
   - [ ] create dialog/conversation
@@ -54,6 +54,7 @@
   - [ ] add binding to panel_{above,below}
   - [ ] man wechochar
   - [ ] italic ?
+	enter_italics_mode ZH, ZR man terminfo
   - [ ] unset color in set_win_attr()
   - [ ] set a function to redraw the entire screen
 	man clearok
@@ -62,6 +63,15 @@
 	contening x, y, visibility ?
 	Where each of this fields have a getter and a setter
   - [ ] lua_pushlightuserdata() on Constructors ?
+  - [ ] restore scroll on chatbox when resize() is used ?
+  - [ ] remove print_colored
+  - [ ] input justification ?
+  - [ ] insert mode for input
+  - [ ] change clear() in window.c and add erase()
+  - [ ] addstr() more like print()
+	addstr(a, b, c)
+  - [ ] try keypad keys
+	Find good name
 ** Signals [0%]
    - [ ] resize
 	 when a sigwinch is received

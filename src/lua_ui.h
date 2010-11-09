@@ -2,10 +2,10 @@
 ** lua_ui.h for luasoul	 in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 19:14:04 2010 Guillaume Papin
-** Last update Sun Oct 24 23:05:25 2010 Guillaume Papin
+** Last update Sun Nov  7 18:51:00 2010 Guillaume Papin
 */
 
 #ifndef _LUA_UI_H_
@@ -19,6 +19,7 @@ int	lui_handle_input(lua_State *L);
 
 /* Lua functions */
 int	lui_get_screen_size(lua_State *L);
+int	lui_clear(lua_State *L);
 int	lui_define_key(lua_State *L);
 
 char	*user_keys_hook(int keycode, const char *key_sequence,

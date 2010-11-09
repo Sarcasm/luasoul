@@ -2,14 +2,14 @@
 ** window.c for luasoul in /home/papin_g
 **
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Tue Oct 26 23:12:52 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:29 2010 Guillaume Papin
 */
 
 /*
-  `OOP model' inspired by:
+  `Object model' inspired by:
   http://lua-users.org/wiki/UserDataWithPointerExample
   http://lua-users.org/wiki/ObjectProperties
 */
@@ -177,6 +177,7 @@ int		lui_window_get_cursor_y(lua_State *L)
 /* this structure map members to setters() */
 static const t_index_wrap	lui_window_set_methods[]=
   {
+    {lui_window_set_style,	REG_MEMBER("style")},
     {lui_window_set_hidden,	REG_MEMBER("hidden")},
     {lui_window_set_autoscroll,	REG_MEMBER("autoscroll")},
     {NULL, NULL, 0}
@@ -195,6 +196,32 @@ static const t_index_wrap	lui_window_set_methods[]=
 int		lui_window_newindex(lua_State *L)
 {
   return lua_oo_accessors(L, lui_window_set_methods);
+}
+
+/*
+  window:set_win_style{
+  bold = true,
+  foreground = 3,
+  ...
+  }
+
+  set the global style of the window, take effect immediatly for each row
+  of the window
+
+  Stack:
+  2nd argument is a table who can contain all the attributes above
+
+  TODO: Optimisation ?
+*/
+
+int		lui_window_set_style(lua_State *L)
+{
+  WINDOW	*w = panel_window(check_window(L, 1));
+  t_style	s;
+
+  get_style(L, 3, s);
+  wbkgd(w, s.on & ~s.off);
+  return 0;
 }
 
 /*
@@ -246,8 +273,7 @@ static const luaL_reg lui_window_instance_methods[]=
     {"clear",		lui_clear_window},
     {"resize",		lui_resize_window},
     {"move",		lui_move_window},
-    {"set_style",	lui_set_window_style},
-    {"set_font",	lui_set_window_attr},
+    {"addch",		lui_addch_window},
     {"addstr",		lui_addstr_window},
     {"print_colored",	lui_print_colored_window},
     {"scroll",		lui_scroll_window},
@@ -317,9 +343,15 @@ PANEL		*check_window(lua_State *L, int n)
 */
 int		lui_refresh_window(lua_State *L)
 {
-  PANEL		*p;
+  WINDOW	*w = panel_window(check_window(L, 1));
 
-  p = check_window(L, 1);
+  /*
+    FIXME:
+    set the bkgd each time we refresh is absolutely not necessary,
+    but when we clear the screen it's useful...
+  */
+  wbkgd(w, getbkgd(w));
+
   update_panels();
   doupdate();
   return 0;
@@ -338,58 +370,6 @@ int		lui_clear_window(lua_State *L)
   wclear(panel_window(p));
   update_panels();
   doupdate();
-  return 0;
-}
-
-/*
-  window:set_win_style{
-  bold = true,
-  foreground = 3,
-  ...
-  }
-
-  set the global style of the window, take effect immediatly for each row
-  of the window
-
-  Stack:
-  2nd argument is a table who can contain all the attributes above
-
-  TODO: Optimisation ?
-*/
-
-int		lui_set_window_style(lua_State *L)
-{
-  WINDOW	*w = panel_window(check_window(L, 1));
-  t_style	s;
-
-  get_style(L, 2, s);
-  wbkgd(w, s.on & ~s.off);
-  return 0;
-}
-
-/*
-  window:set_win_style{
-  bold = true,
-  foreground = 3,
-  ...
-  }
-
-  set the global style of the window, take effect immediatly for each row
-  of the window
-
-  Stack:
-  2nd argument is a table who can contain all the attributes above
-
-  TODO: Optimisation ?
-*/
-int		lui_set_window_attr(lua_State *L)
-{
-  WINDOW	*w = panel_window(check_window(L, 1));
-  t_style	s;
-
-  get_style(L, 2, s);
-  wattron(w, s.on);
-  wattroff(w, s.off);
   return 0;
 }
 
@@ -427,6 +407,20 @@ int		lui_print_colored_window(lua_State *L)
   /* restore old attr */
   wattr_set(w, attr, pair, NULL);
 
+  return 0;
+}
+
+/*
+  window:addch(c)
+  put a char in the virtual window
+*/
+int		lui_addch_window(lua_State *L)
+{
+  WINDOW	*w = panel_window(check_window(L, 1));
+  const char	*str = luaL_checkstring(L, 2);
+
+  if (*str)
+    waddch(w, *str);
   return 0;
 }
 

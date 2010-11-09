@@ -2,10 +2,10 @@
 ** utils.c for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:15 2010 Guillaume Papin
-** Last update Sun Oct 24 23:06:28 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:52 2010 Guillaume Papin
 */
 
 #include <stdlib.h>

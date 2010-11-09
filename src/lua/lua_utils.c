@@ -2,10 +2,10 @@
 ** utils.c for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 21:02:00 2010 Guillaume Papin
-** Last update Tue Oct 26 00:26:32 2010 Guillaume Papin
+** Last update Sun Nov  7 18:50:56 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -15,9 +15,6 @@
 #include "lua_ui.h"
 #include "utils.h"
 #include "lua/lua_utils.h"
-#include "ui/style.h"
-#include "ui/window.h"
-#include "ui/input.h"
 
 /**
  * Create the lua environnement.
@@ -36,15 +33,6 @@ lua_State	*load_lua(void)
   /* open standard libs */
   luaL_openlibs(L);
   init_lua_ui(L);
-
-  /* add style */
-  lui_style_register(L);
-
-  /* add ncurses window binding */
-  lui_window_register(L);
-
-  /* add ncurses form/field/input binding */
-  lui_input_register(L);
 
   return L;
 }
@@ -136,7 +124,6 @@ void		call_lua_function(lua_State *L,const char *func,
   if (lua_pcall(L, narg, nres, 0) != 0)	/* do the call */
     error("error running function `%s': %s",
 	  func, lua_tostring(L, -1));
-    
   /* retrieve results */
   nres = -nres;			/* stack index of first result */
   while (*sig) {		/* get results */

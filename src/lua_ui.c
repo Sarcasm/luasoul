@@ -2,17 +2,23 @@
 ** lua_ui.c for luasoul in /home/papin_g
 ** 
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 19:12:49 2010 Guillaume Papin
-** Last update Fri Oct 29 23:04:46 2010 Guillaume Papin
+** Last update Tue Nov  9 23:46:33 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <curses.h>
+#include "utils.h"
 #include "lua_ui.h"
 #include "ui/ui_utils.h"
+#include "ui/style.h"
+#include "ui/chatbox.h"
+#include "ui/window.h"
+#include "ui/input.h"
 
 
 /* list of lua functions for the user interface */
@@ -22,12 +28,19 @@ t_lua_function				lua_ui_functions[]=
     {"define_key",	lui_define_key},
 #endif	/* !NCURSES_VERSION */
     {"get_screen_size",	lui_get_screen_size},
+    {"clear",		lui_clear},
     {NULL,		NULL}
   };
 
 void		init_lua_ui(lua_State *L)
 {
   register_function(L, (t_lua_function *) (lua_ui_functions));
+
+  /* Export LuaSoul `classes' */
+  lui_style_register(L);
+  lui_window_register(L);
+  lui_chatbox_register(L);
+  lui_input_register(L);
 }
 
 /**
@@ -46,6 +59,16 @@ int		lui_get_screen_size(lua_State *L)
   lua_pushnumber(L, height);
 
   return 2;
+}
+
+/**
+ * Clear the screen
+ */
+int		lui_clear(lua_State *L UNUSED_ATTRIBUTE)
+{
+  wclear(stdscr);
+  wnoutrefresh(stdscr);
+  return 0;
 }
 
 
@@ -126,6 +149,77 @@ int		lui_define_key(lua_State *L)
 #endif	/* !NCURSES_VERSION */
 
 
+typedef struct
+{
+  const int	keycode;
+  const char	*keyname;
+}		keys_hook_t;
+
+keys_hook_t	key_hook_names[]=
+  {
+    {KEY_UP,		"<up>"},
+    {KEY_DOWN,		"<down>"},
+    {KEY_LEFT,		"<left>"},
+    {KEY_RIGHT,		"<right>"},
+    {KEY_HOME,		"<home>"},
+    {KEY_END,		"<end>"},
+    {KEY_ENTER,		"RET"},
+    {KEY_BACKSPACE,	"<backspace>"},
+    {'\b',		"<backspace>"},
+    {KEY_NPAGE,		"<PageDown>"},
+    {KEY_PPAGE,		"<PageUp>"},
+    {KEY_DL,		"<delete-line>"},
+    {KEY_IL,		"<insert-line>"},
+    {KEY_DC,		"<delete>"},
+    {KEY_IC,		"<insert>"},
+    {KEY_SDC,		"S-<delete>"},
+    {KEY_SDL,		"S-<delete-line>"},
+    {KEY_SHOME,		"S-<home>"},
+    {KEY_SEND,		"S-<end>"},
+    {KEY_SIC,		"S-<insert>"},
+    {KEY_SLEFT,		"S-<left>"},
+    {KEY_SRIGHT,	"S-<right>"},
+    /* Just bind 16 functions keys */
+    {KEY_F0,		"<f0>"},
+    {KEY_F(1),		"<f1>"},
+    {KEY_F(2),		"<f2>"},
+    {KEY_F(3),		"<f3>"},
+    {KEY_F(4),		"<f4>"},
+    {KEY_F(5),		"<f5>"},
+    {KEY_F(6),		"<f6>"},
+    {KEY_F(7),		"<f7>"},
+    {KEY_F(8),		"<f8>"},
+    {KEY_F(9),		"<f9>"},
+    {KEY_F(10),		"<f10>"},
+    {KEY_F(11),		"<f11>"},
+    {KEY_F(12),		"<f12>"},
+    {KEY_F(13),		"<f13>"},
+    {KEY_F(14),		"<f14>"},
+    {KEY_F(15),		"<f15>"},
+    {KEY_F(16),		"<f16>"},
+    {0,			NULL}
+  };
+
+/*
+  This function is a wrapper to the ncurses keyname()
+  Try to convert some KEY_* more readable (or more 'emacs-like' ?).
+ */
+static const char	*keyname_hook(int ch)
+{
+  int			i;
+
+  for (i = 0; key_hook_names[i].keyname != NULL; i++)
+    if (key_hook_names[i].keycode == ch)
+      return key_hook_names[i].keyname;
+
+  /*
+    FIXME: this should be avoided in the future
+    keyname() can return NULL
+   */
+  return keyname(ch);
+}
+
+
 /*
   This function is the callback on keyboard input
 
@@ -133,7 +227,6 @@ int		lui_define_key(lua_State *L)
   - key_received(key_value, key_name)
 
   FIXME:
-  keyname() can return null
   check if the called function exist
  */
 int		lui_handle_input(lua_State *L)
@@ -143,11 +236,19 @@ int		lui_handle_input(lua_State *L)
   #define	KEY_BUFSIZE 42
   char		name_buf[KEY_BUFSIZE];
 
-
+  /* get the character */
   ch = getch();
-  
+
+  /* normal character */
+  if (isprint(ch))
+    {
+      name_buf[0] = ch;
+      name_buf[1] = '\0';
+      name = name_buf;
+    }
+  else
   /* Control keys */
-  if (ch >= 0 && ch <= 0x20)
+  if (ch >= 0 && ch < 0x20)
     {
       if (ch == 0x1b)
 	name = "ESC";
@@ -155,8 +256,6 @@ int		lui_handle_input(lua_State *L)
 	name = "RET";
       else if (ch == '\t')
 	name = "TAB";
-      else if (ch == ' ')
-	name = "SPC";
       else
 	{
 	  snprintf(name_buf, KEY_BUFSIZE -1, "C-%c", ch - CTRL('A') + 'a');
@@ -169,15 +268,7 @@ int		lui_handle_input(lua_State *L)
     name = user_keys_hook(ch, NULL, NULL);
   if (name == NULL)
 #endif	/* !NCURSES_VERSION */
-    name = keyname(ch);
-
-
-  /* if the previous call to getch() was meta, insert 'M-' */
-  /* if (wasmeta) */
-  /*   { */
-  /*     snprintf(name_buf, KEY_BUFSIZE, "M-%s", name); */
-  /*     name = name_buf; */
-  /*   } */
+    name = keyname_hook(ch);
 
   /*
     Call a lua function with on the following form:

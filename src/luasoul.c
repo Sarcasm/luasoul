@@ -2,10 +2,10 @@
 ** luasoul.c for luasoul in /home/papin_g
 **
 ** Made by Guillaume Papin
-** Login   <papin_g@epitech.net>
+** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Wed Oct  6 00:43:31 2010 Guillaume Papin
-** Last update Fri Oct 29 23:01:44 2010 Guillaume Papin
+** Last update Tue Nov  9 23:48:19 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -14,10 +14,11 @@
 #include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
 
+/* loop stuff, move that one day */
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <sys/select.h>
-#include <unistd.h>		/* FIXME: it's just for STDIN_FILENO */
+#include <unistd.h>
 #include "lua_ui.h"
 
 
@@ -26,13 +27,16 @@ int			globalFlag = 0;
 
 /*
   this function just toggle a the global int flag
-  __attribute__ ((__unused__))
 */
 void			sigwinch_handler(int sig)
 {
   globalFlag = sig;
 }
 
+/*
+  FIXME:
+  The Loop is ugly for the moment, it's just a draft
+*/
 void			lOOoop(lua_State *L)
 {
   fd_set		activefds;
@@ -50,10 +54,11 @@ void			lOOoop(lua_State *L)
 
   /*
     set the SIGWINCH handler
-    FIXME: SA_RESTART flag ?
+    FIXME: SA_SIGINFO flag is correct ?
   */
   sigemptyset(&sa.sa_mask);
   sa.sa_handler = sigwinch_handler;
+  sa.sa_flags = SA_SIGINFO;
   if (sigaction(SIGWINCH, &sa, NULL) == -1)
     {
       /* FIXME: find a good handling of error */
@@ -136,5 +141,5 @@ int		main(void)
   ui_close();
 
   /* bye :) */
-  return (0);
+  return 0;
 }
