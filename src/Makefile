@@ -5,7 +5,7 @@
 ## Login   <guillaume.papin@epitech.eu>
 ## 
 ## Started on  Wed Oct  6 00:43:13 2010 Guillaume Papin
-## Last update Mon Nov  8 22:38:16 2010 Guillaume Papin
+## Last update Fri Nov 12 00:31:48 2010 Guillaume Papin
 ##
 
 NAME		= luasoul

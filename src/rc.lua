@@ -188,6 +188,25 @@ bind("M-<right>",	function ()
 			   end
 			end)
 
+-- not really beautiful...
+bind("M-<left>",	function ()
+			   local i = input_field.index -1
+			   local buff = input_field.buff
+
+			   local last_match = 1
+			   local f = 1
+			   -- find next space
+			   while true do
+			      f = (string.find(buff, "%s%S", f) or i) + 1
+			      if f > i
+			      then
+				 input_field.index = last_match
+				 return
+			      end
+			      last_match = f
+			   end
+			end)
+
 -- Enter
 bind("RET",		function ()
 			   message_box:print_colored(os.date("%H:%M"), hour_style)
