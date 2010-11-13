@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:29 2010 Guillaume Papin
+** Last update Fri Nov 12 21:27:36 2010 Guillaume Papin
 */
 
 /*
@@ -180,7 +180,7 @@ static const t_index_wrap	lui_window_set_methods[]=
     {lui_window_set_style,	REG_MEMBER("style")},
     {lui_window_set_hidden,	REG_MEMBER("hidden")},
     {lui_window_set_autoscroll,	REG_MEMBER("autoscroll")},
-    {NULL, NULL, 0}
+    {NULL,			NULL, 0}
   };
 
 /*
@@ -281,7 +281,7 @@ static const luaL_reg lui_window_instance_methods[]=
     {"__newindex",	lui_window_newindex},
     {"__gc",		lui_destroy_window},
     {"__tostring",	lui_window_tostring},
-    {NULL, NULL}
+    {NULL,		NULL}
   };
 
 /*

@@ -5,7 +5,7 @@
 ## Login   <guillaume.papin@epitech.eu>
 ## 
 ## Started on  Wed Oct  6 00:43:13 2010 Guillaume Papin
-## Last update Fri Nov 12 00:31:48 2010 Guillaume Papin
+## Last update Fri Nov 12 19:46:42 2010 Guillaume Papin
 ##
 
 NAME		= luasoul
@@ -32,7 +32,7 @@ CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
 
 DEBUG		= -ggdb3
 
-LDFLAGS		= -llua -lpanel -lncurses
+LDFLAGS		= -llua -lpanel -lmenu -lncurses
 
 CC		?= gcc
 

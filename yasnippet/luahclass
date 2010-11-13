@@ -1,0 +1,25 @@
+#name : Create a LuaOO C header
+# --
+#include "lua/ooutils.h"
+
+#define ${2:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS	"${2:$(capitalize text)}"		/* class table name */
+#define $2_INST	"${2:$(capitalize text)}-instance"	/* instance table name */
+$0
+
+  /* Constructor */
+int		${4:lui}_new_${3:`(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`}(lua_State *L);
+
+  /* Getters */
+int		$4_$3_index(lua_State *L);
+
+  /* Setters */
+int		$4_$3_newindex(lua_State *L);
+
+  /* Utils */
+int		$4_$3_register(lua_State *L);
+
+  /* Methods  */
+int		$4_$3_tostring(lua_State *L);
+
+  /* Destructor */
+int		$4_destroy_$3(lua_State *L);
