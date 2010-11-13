@@ -5,6 +5,17 @@ header = ([=[
 	||_|(_|_\(_)|_||
 ]=])
 
+buddy_list = {
+   "login_1",
+   "login_2",
+   "login_3",
+   "login_4",
+   "login_5",
+   "login_6",
+   "login_7",
+   "login_8",
+}
+
 local width, height = get_screen_size()
 local HISTSIZE = height -- one page history
 
@@ -21,7 +32,8 @@ local colors = {
 }
 
 -- Set the window title
-print"]2;luasoul v0.42\a\r"
+-- print"]2;luasoul v0.42\a\r"
+-- clear()
 
 -- show /etc/inputrc
 local TERM = os.getenv("TERM") or ""
@@ -35,6 +47,10 @@ if string.find(TERM, "rxvt") then
    define_key("[a",	"S-<up>")
    define_key("[C",	"M-<right>")
    define_key("[D", "M-<left>")
+   define_key("[7^", "C-<home>")
+   define_key("[8^", "C-<end>") -- if not def it's <clearline>
+   define_key("[5^", "C-<PageUp>")
+   define_key("[6^", "C-<PageDown>")
 
       -- Xterm
 else if string.find(TERM, "xterm") then
@@ -58,14 +74,63 @@ text_style = Style.new{
    foreground = colors.YELLOW,
 }
 
+-- Tab styles
+tab_style = Style.new{
+   bold = true,
+   foreground = colors.WHITE,
+   background = colors.BLUE,
+}
+tab_focus_style = Style.new{
+   foreground = colors.WHITE,
+   background = colors.BLACK,
+}
+
+-- Tab bar
+tab_bar = Chatbox.new(width, 1, 0, 0, #buddy_list - 1)
+tab_bar.style = tab_style
+
+-- the buddy number `n' is the buddy to focus
+function write_line (n)
+   local b = buddy_list
+   for i, v in ipairs(buddy_list)
+   do
+      tab_bar:addstr(" | ")
+      if i == n
+      then
+	 tab_bar:print_colored(b[i], tab_focus_style)
+      else
+      	 tab_bar:addstr(b[i])
+      end
+   end
+   if n == #buddy_list then
+      tab_bar:addstr(" |")
+   else
+      tab_bar:addstr(" |\n")
+   end
+end
+
+function init_tab_bar ()
+   local i = 1
+   local len = #buddy_list
+   while i <= len
+   do
+      write_line(i)
+      i = i + 1
+   end
+end
+init_tab_bar()
+tab_bar:scroll(#buddy_list)	-- focus first in list
+tab_bar:refresh()
+
 -- Message box
 -- Chatbox.new(width, height, begin_x, begin_y[, history_size])
-message_box = Chatbox.new(width, height - 2, 0, 0, HISTSIZE)
+message_box = Chatbox.new(width, height - 3, 0, 1, HISTSIZE)
 message_box.style = {bold = false, foreground = colors.BLUE}
 -- print the header
 message_box:addstr(header)
 message_box:print_colored("     --8<----- v0.42 -----\n\n", {bold = false, foreground = colors.BLACK})
 message_box:refresh()
+
 
 -- Status bar
 status_bar = Window.new(width, 1, 0, height -2)
@@ -87,8 +152,8 @@ function window_resize()
    -- get new dimension
    local width, height = get_screen_size()
 
-   message_box:resize(width, height - 2)
-   -- message_box:move(0, 0)	-- useless ?
+   message_box:resize(width, height - 3)
+   message_box:move(0, 1)	-- useless ?
    message_box:addstr("width = " .. tostring(width) .. "\nheight = " .. tostring(height) .. "\n")
 
    status_bar:resize(width, 1)
@@ -206,6 +271,9 @@ bind("M-<left>",	function ()
 			      last_match = f
 			   end
 			end)
+
+bind("C-<left>",	function () tab_bar:scroll(1)			end)
+bind("C-<right>",	function () tab_bar:scroll(-1)			end)
 
 -- Enter
 bind("RET",		function ()

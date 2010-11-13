@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 09:48:42 2010 Guillaume Papin
-** Last update Tue Nov  9 23:39:27 2010 Guillaume Papin
+** Last update Sat Nov 13 13:37:20 2010 Guillaume Papin
 */
 
 /*
@@ -174,10 +174,7 @@ int		lui_chatbox_newindex(lua_State *L)
   Stack:
   2nd argument is a accessed member (style)
   3rd argument is a table who can contain all the attributes above
-
-  TODO: Optimisation ?
 */
-
 int		lui_chatbox_set_style(lua_State *L)
 {
   CHATBOX	*c = check_chatbox(L, 1);

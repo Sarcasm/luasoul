@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 19:12:49 2010 Guillaume Papin
-** Last update Tue Nov  9 23:46:33 2010 Guillaume Papin
+** Last update Sat Nov 13 17:49:07 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -172,6 +172,7 @@ keys_hook_t	key_hook_names[]=
     {KEY_IL,		"<insert-line>"},
     {KEY_DC,		"<delete>"},
     {KEY_IC,		"<insert>"},
+    {KEY_EOL,		"<clearline>"},
     {KEY_SDC,		"S-<delete>"},
     {KEY_SDL,		"S-<delete-line>"},
     {KEY_SHOME,		"S-<home>"},
