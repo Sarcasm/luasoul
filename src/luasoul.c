@@ -5,8 +5,12 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Wed Oct  6 00:43:31 2010 Guillaume Papin
-** Last update Sat Nov 13 15:12:11 2010 Guillaume Papin
+** Last update Sat Nov 20 18:11:18 2010 Guillaume Papin
 */
+
+#define	_POSIX_SOURCE		/* for kill() */
+#include <sys/types.h>
+#include <signal.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,23 +18,61 @@
 #include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
 
-/* loop stuff, move that one day */
-#include <sys/ioctl.h>
-#include <signal.h>
 #include <sys/select.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include "lua_ui.h"
 
-
-/* ugly...for signal handling */
+/* not really beautiful...for signal handling */
 int			globalFlag = 0;
 
 /*
   this function just toggle a the global int flag
 */
-void			sigwinch_handler(int sig)
+void			luasoul_sighandler(int sig)
 {
   globalFlag = sig;
+}
+
+void			luasoul_suspend(void)
+{
+  def_prog_mode();		/* Save the tty modes		  */
+  endwin();			/* End curses mode temporarily	  */
+  kill(getpid(), SIGTSTP);	/* Stop Luasoul */
+}
+
+
+/*
+  SIGCONT handling taken from ncurses distribution:
+  ncurses-5.7/ncurses/tty/lib_tstp.c
+*/
+void			luasoul_resume(void)
+{
+  flushinp();
+  def_shell_mode();
+  doupdate();
+}
+
+/*
+  Some tips found in the ncurses distribution:
+  ncurses-5.7/test/view.c#adjust(int sig)
+*/
+void			luasoul_resize(lua_State *L)
+{
+  int			row;
+  int			col;
+  struct winsize	size;
+
+  getmaxyx(stdscr, row, col);
+
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) == 0
+      && (size.ws_row != row || size.ws_col != col))
+    {
+      resize_term(size.ws_row, size.ws_col);
+      wrefresh(curscr);		/* Linux needs this */
+      call_lua_function(L, "window_resize", "");
+      doupdate();
+    }
 }
 
 /*
@@ -45,7 +87,6 @@ void			lOOoop(lua_State *L)
   int			nb_fds;
   /* SIGWINCH handler */
   struct sigaction	sa;
-  struct winsize	size;
 
   FD_ZERO(&activefds);
   FD_SET(STDIN_FILENO, &activefds);
@@ -57,8 +98,8 @@ void			lOOoop(lua_State *L)
     FIXME: SA_SIGINFO flag is correct ?
   */
   sigemptyset(&sa.sa_mask);
-  sa.sa_handler = sigwinch_handler;
   sa.sa_flags = SA_SIGINFO;
+  sa.sa_handler = luasoul_sighandler;
   if (sigaction(SIGWINCH, &sa, NULL) == -1)
     {
       /* FIXME: find a good handling of error */
@@ -72,48 +113,28 @@ void			lOOoop(lua_State *L)
       readfds = activefds;
 
       /*
-	 select returns 0 if timeout, 1 if input available, -1 if error.
-	 Set timeout to NULL for blocking operation
+	select returns 0 if timeout, 1 if input available, -1 if error.
+	Set timeout to NULL for blocking operation
       */
       nb_fds = select(nfds, &readfds, NULL, NULL, NULL);
-	/* handle lost connection and SIGWINCH */
-      if (nb_fds <= 0) {
 
-	if (globalFlag == SIGWINCH)
-	  {
-#include <curses.h>
-	    /*
-	      some tips found in the ncurses distribution:
-	      ncurses-5.7/test/view.c#adjust(int sig)
-	    */
-
-	    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) == 0)
-	      {
-	    	resize_term(size.ws_row, size.ws_col);
-	    	wrefresh(curscr);	/* Linux needs this */
-	      }
-
-	    /* Alternative */
-	    /* endwin(); */
-	    /* refresh(); */
-
-	    /* clearok(curscr, TRUE);	/\* screen contents are unknown *\/ */
-	    call_lua_function(L, "window_resize", "");
-	    globalFlag = 0;
-	  }
-      	/*
-      	  temporary just for supporting Signals (SIGWINCH, SIGSUSPEND, SIGCONT...)
-      	  here check for lost connection for example...
-      	*/
-      	continue ;
-      }
+      /* handle lost connection and SIGWINCH */
+      if (nb_fds <= 0)
+	{
+	  if (globalFlag == SIGWINCH)
+	    {
+	      luasoul_resize(L);
+	      globalFlag = 0;
+	    }
+	  continue ;
+	}
 
       /*
-      	Event from keyboard ?
-      	call lua function on root input handler
+	Event from keyboard ?
+	call lua function on root input handler
       */
       if (FD_ISSET(STDIN_FILENO, &readfds))
-      	lui_handle_input(L);
+	lui_handle_input(L);
     }
 }
 

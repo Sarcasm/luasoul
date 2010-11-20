@@ -13,7 +13,6 @@ buddy_list = {
    "login_5",
    "login_6",
    "login_7",
-   "login_8",
 }
 
 local width, height = get_screen_size()
@@ -45,8 +44,10 @@ if string.find(TERM, "rxvt") then
    define_key("Oc",	"C-<right>")
    define_key("[b",	"S-<down>")
    define_key("[a",	"S-<up>")
-   define_key("[C",	"M-<right>")
-   define_key("[D", "M-<left>")
+   -- define_key("[C",	"M-<right>")
+   -- define_key("[D", "M-<left>")
+   -- define_key("[C",	"M-<up>")
+   -- define_key("[D", "M-<down>")
    define_key("[7^", "C-<home>")
    define_key("[8^", "C-<end>") -- if not def it's <clearline>
    define_key("[5^", "C-<PageUp>")
@@ -242,6 +243,8 @@ bind("<delete>",	function () input_field:remove(1)			end)
 bind("<backspace>",	function () input_field:remove(-1)			end)
 bind("C-y",		function () input_field:addstr(kill_ring)		end)
 
+bind("C-x C-z",		function () suspend()					end)
+
 bind("M-<right>",	function ()
 			   local i = input_field.index
 			   local buff = input_field.buff
@@ -295,10 +298,10 @@ bind("C-l",		function ()
 -- END KEY BINDING
 
 -- keyboard input is received
-function key_received(val, name)
+function key_received(val, name, printable)
    if not exec(name)
    then
-      if #name == 1
+      if printable
       then
    	 input_field:addch(name)
       else

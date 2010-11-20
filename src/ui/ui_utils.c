@@ -5,12 +5,11 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:15 2010 Guillaume Papin
-** Last update Sat Nov 13 14:34:17 2010 Guillaume Papin
+** Last update Sat Nov 20 18:03:20 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
 #include <locale.h>
-#include <curses.h>
 #include "ui/ui_utils.h"
 
 /**
@@ -42,7 +41,7 @@ int		init_ui(void)
     man curs_kernel for C-z and C-c ?
   */
   raw();			/* disable all signal like ^S, ^Q, ^C, ^Z.. */
-  cbreak();			/* `re-enable' ^C, ^Z */
+  /* cbreak();			/\* `re-enable' ^C, ^Z *\/ */
 
   noecho();
   start_color();
@@ -54,10 +53,10 @@ int		init_ui(void)
   /* enable keypad once (with that each input have automatically keypad-mode on) */
   keypad(stdscr, TRUE);
 
-  /* activate eight bit characters */
+  /* FIXME: activate eight bit characters ? */
   meta(stdscr, TRUE);
 
-  /* I'm not sure... */
+  /* FIXME: I'm not sure... */
   idlok(stdscr, TRUE);
 
   refresh();

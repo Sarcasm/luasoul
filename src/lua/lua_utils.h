@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 20:54:25 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:56 2010 Guillaume Papin
+** Last update Sat Nov 20 16:51:21 2010 Guillaume Papin
 */
 
 #ifndef _LUA_UTILS_H_
@@ -15,6 +15,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+
+#include "utils.h"
 
 typedef struct		s_lua_function
 {
@@ -29,5 +31,6 @@ int		load_config(lua_State *L);
 void		register_function(lua_State *L, t_lua_function functions[]);
 void		call_lua_function(lua_State *L,const char *func,
 				  const char *sig, ...);
+wchar_t		*check_wcstr(lua_State *L, int n);
 
 #endif /* _LUA_UTILS_H_ */

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 22:41:34 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:15 2010 Guillaume Papin
+** Last update Sat Nov 20 18:06:12 2010 Guillaume Papin
 */
 
 #ifndef _UI_WINDOW_H_

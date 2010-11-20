@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 21:02:00 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:56 2010 Guillaume Papin
+** Last update Sat Nov 20 20:55:56 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -13,8 +13,35 @@
 #include <string.h>
 #include <stdarg.h>
 #include "lua_ui.h"
-#include "utils.h"
 #include "lua/lua_utils.h"
+
+/**
+ * Get a wide character string corresponding or raise an error.
+ * @param n	the index of the lua string to convert
+ * @return	the wide character string
+ */
+wchar_t		*check_wcstr(lua_State *L, int n)
+{
+  const char	*str;
+  size_t	 len;
+  wchar_t	*wstr;
+
+  luaL_checktype(L, n, LUA_TSTRING);
+  str = lua_tolstring(L, n, &len);
+
+  wstr = malloc((len + 1) * sizeof(wstr));
+  if (wstr != NULL)
+    {
+      size_t	nbytes;
+
+      nbytes = mbstowcs(wstr, str, len);
+      if (nbytes == (size_t) -1)
+	luaL_error(L, "An invalid multibyte sequence has been encountered.");
+      if (nbytes == len)
+	wstr[len] = L'\0';
+    }
+  return wstr;
+}
 
 /**
  * Create the lua environnement.
@@ -107,6 +134,10 @@ void		call_lua_function(lua_State *L,const char *func,
     case 's':			/* string argument */
       lua_pushstring(L, va_arg(vl, char *));
       break;
+
+    case 'b':			/* boolean argument */
+      lua_pushboolean(L, va_arg(vl, int));
+      break;
     
     default:
       error("invalid option (%c)", *(sig - 1));
@@ -146,6 +177,13 @@ void		call_lua_function(lua_State *L,const char *func,
 	error("wrong result type");
       *va_arg(vl, const char **) = lua_tostring(L, nres);
       break;
+
+    case 'b':			/* boolean result */
+      if (!lua_isboolean(L, nres))
+	error("wrong result type");
+      *va_arg(vl, int *) = (int)lua_tonumber(L, nres);
+      break;
+    
     
     default:
       error("invalid option (%c)", *(sig - 1));

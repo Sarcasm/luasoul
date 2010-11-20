@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 19:14:04 2010 Guillaume Papin
-** Last update Sun Nov  7 18:51:00 2010 Guillaume Papin
+** Last update Sat Nov 20 13:17:36 2010 Guillaume Papin
 */
 
 #ifndef _LUA_UI_H_
@@ -20,9 +20,7 @@ int	lui_handle_input(lua_State *L);
 /* Lua functions */
 int	lui_get_screen_size(lua_State *L);
 int	lui_clear(lua_State *L);
+int	lui_suspend(lua_State *L);
 int	lui_define_key(lua_State *L);
-
-char	*user_keys_hook(int keycode, const char *key_sequence,
-			const char *new_name);
 
 #endif /* _LUA_UI_H_ */

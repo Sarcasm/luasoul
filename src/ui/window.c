@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Fri Nov 12 21:27:36 2010 Guillaume Papin
+** Last update Sat Nov 20 20:23:47 2010 Guillaume Papin
 */
 
 /*
@@ -14,12 +14,15 @@
   http://lua-users.org/wiki/ObjectProperties
 */
 
+#define	_BSD_SOURCE		/* strdup() */
+
+/* curses.h and _XOPEN_SOURCE_EXTENDED before panel.h */
+#include "ui/ui_utils.h"
+#include <panel.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include <curses.h>
-#include <panel.h>
 #include "lua/lua_utils.h"
-#include "ui/ui_utils.h"
 #include "ui/window.h"
 #include "ui/style.h"
 

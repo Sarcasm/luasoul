@@ -72,6 +72,10 @@
 	addstr(a, b, c)
   - [ ] try keypad keys
 	Find good name
+  - [ ] handle SIGCONT
+	from a kill command
+  - [ ] handle KEY_RESIZE
+	but add a call to error() for lua
 ** Signals [0%]
    - [ ] resize
 	 when a sigwinch is received

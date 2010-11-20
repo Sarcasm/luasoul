@@ -5,11 +5,10 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Oct 25 21:49:04 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:53 2010 Guillaume Papin
+** Last update Sat Nov 20 18:08:42 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
-#include <curses.h>
 #include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
 #include "ui/style.h"

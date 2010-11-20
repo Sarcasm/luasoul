@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 09:48:42 2010 Guillaume Papin
-** Last update Sat Nov 13 13:37:20 2010 Guillaume Papin
+** Last update Sat Nov 20 18:08:30 2010 Guillaume Papin
 */
 
 /*
@@ -16,7 +16,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <curses.h>
 #include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
 #include "ui/chatbox.h"

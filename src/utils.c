@@ -1,12 +1,14 @@
 /*
 ** utils.c for luasoul in /home/papin_g
-** 
+**
 ** Made by Guillaume Papin
 ** Login   <guillaume.papin@epitech.eu>
-** 
+**
 ** Started on  Sun Sep 19 13:17:56 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:58 2010 Guillaume Papin
+** Last update Sat Nov 20 18:17:48 2010 Guillaume Papin
 */
+
+#define	_XOPEN_SOURCE 500	/* strdup() */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,6 +25,33 @@ void		error(const char *fmt, ...)
   fprintf(stderr, "error: ");
   vfprintf(stderr, fmt, argp);
   va_end(argp);
+}
+
+
+/*
+  Duplication a wide-character string s.
+*/
+wchar_t		*luasoul_wcsdup(const wchar_t *s)
+{
+  wchar_t	*res;
+
+  res = malloc((wcslen(s) + 1) * sizeof(*res));
+  return res != NULL ? wcscpy(res, s) : NULL;
+}
+
+
+/*
+  Duplication at most n characters of the wide-character string s.
+*/
+wchar_t		*luasoul_wcsndup(const wchar_t *s, size_t n)
+{
+  wchar_t	*res;
+  size_t	len = wcslen(s);
+
+  if (n > len)
+    n = len;
+  res = malloc((n + 1) * sizeof(*res));
+  return res != NULL ? wcsncpy(res, s, n) : NULL;
 }
 
 
