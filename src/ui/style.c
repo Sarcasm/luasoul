@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Oct 25 21:49:04 2010 Guillaume Papin
-** Last update Sun Nov 21 16:00:06 2010 Guillaume Papin
+** Last update Sun Nov 21 17:23:39 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -14,18 +14,10 @@
 #include "ui/style.h"
 
 /* Constructor */
-
-static const luaL_reg	lui_style_class_methods[]=
-  {
-    {"new",		lui_new_style},
-    {NULL,		NULL}
-  };
-
-
 /*
   Create a new style
 
-  Style.new{
+  Style{
   normal	= true/false,
   bold		= true/false,
   underline	= true/false,
@@ -47,7 +39,7 @@ int		lui_new_style(lua_State *L)
   table_to_style(L, 1, s);
 
   /* set instance metatable to registered methods */
-  luaL_getmetatable(L, STYLE_INST);
+  luaL_getmetatable(L, STYLE_CLASS);
   lua_setmetatable(L, -2);
 
   return 1;
@@ -66,9 +58,9 @@ t_style		*check_style(lua_State *L, int n)
   t_style	*s;
 
   luaL_checktype(L, n, LUA_TUSERDATA);
-  s = (t_style *) luaL_checkudata(L, n, STYLE_INST);
+  s = (t_style *) luaL_checkudata(L, n, STYLE_CLASS);
   if (s == NULL)
-    luaL_typerror(L, n, STYLE_INST);
+    luaL_typerror(L, n, STYLE_CLASS);
   return s;
 }
 
@@ -77,8 +69,7 @@ t_style		*check_style(lua_State *L, int n)
 */
 int		lui_style_register(lua_State *L)
 {
-  luaL_register(L, STYLE_CLASS, lui_style_class_methods);
-  luaL_newmetatable(L, STYLE_INST);
+  luaL_newmetatable(L, STYLE_CLASS);
 
   /* __METATABLE */
   /*

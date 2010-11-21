@@ -2,8 +2,7 @@
 # --
 #include "lua/ooutils.h"
 
-#define ${2:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS	"${2:$(capitalize text)}"		/* class table name */
-#define $2_INST	"${2:$(capitalize text)}-instance"	/* instance table name */
+#define ${2:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS	"${2:$(capitalize text)}"		/* Object 'class' name */
 $0
 
   /* Constructor */

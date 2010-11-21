@@ -121,35 +121,35 @@ else if string.find(TERM, "xterm") then
 end
 
 -- Create styles
-hour_style = Style.new{
+hour_style = Style{
    bold = false,
    underline = true,
    foreground = colors.BLACK,
 }
-me_style = Style.new{
+me_style = Style{
    bold = false,
 }
-text_style = Style.new{
+text_style = Style{
    foreground = colors.YELLOW,
 }
-error_style = Style.new{
+error_style = Style{
    foreground = colors.RED,
    background = colors.YELLOW,
 }
 
 -- Tab styles
-tab_style = Style.new{
+tab_style = Style{
    bold = true,
    foreground = colors.WHITE,
    background = colors.BLUE,
 }
-tab_focus_style = Style.new{
+tab_focus_style = Style{
    foreground = colors.WHITE,
    background = colors.BLACK,
 }
 
 -- Tab bar
-tab_bar = Chatbox.new(width, 1, 0, 0, #buddy_list - 1)
+tab_bar = Chatbox(width, 1, 0, 0, #buddy_list - 1)
 tab_bar.style = tab_style
 
 -- the buddy number `n' is the buddy to focus
@@ -186,8 +186,8 @@ tab_bar:scroll(#buddy_list)	-- focus first in list
 tab_bar:refresh()
 
 -- Message box
--- Chatbox.new(width, height, begin_x, begin_y[, history_size])
-message_box = Chatbox.new(width, height - 3, 0, 1, HISTSIZE)
+-- Chatbox(width, height, begin_x, begin_y[, history_size])
+message_box = Chatbox(width, height - 3, 0, 1, HISTSIZE)
 message_box.style = {bold = false, foreground = colors.BLUE}
 -- print the header
 message_box:addstr(header)
@@ -203,13 +203,13 @@ end
 
 
 -- Status bar
-status_bar = Window.new(width, 1, 0, height -2)
+status_bar = Window(width, 1, 0, height -2)
 status_bar.style = {foreground = colors.YELLOW, background = colors.BLACK}
 status_bar.autoscroll = true
 status_bar:refresh()
 
 -- Input field
-input_field = Input.new(width, 1, 0, height -1, 100)
+input_field = Input(width, 1, 0, height -1, 100)
 input_field.style = {foreground = colors.BLUE, bold = true}
 input_field:refresh()
 

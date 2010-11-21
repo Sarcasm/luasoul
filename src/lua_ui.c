@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 19:12:49 2010 Guillaume Papin
-** Last update Sun Nov 21 01:24:24 2010 Guillaume Papin
+** Last update Sun Nov 21 17:24:51 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -30,6 +30,10 @@ t_lua_function				lua_ui_functions[]=
     {"get_screen_size",	lui_get_screen_size},
     {"clear",		lui_clear},
     {"suspend",		lui_suspend},
+    {"Style",		lui_new_style},
+    {"Window",		lui_new_window},
+    {"Chatbox",		lui_new_chatbox},
+    {"Input",		lui_new_input},
     {NULL,		NULL}
   };
 
@@ -37,7 +41,7 @@ void		init_lua_ui(lua_State *L)
 {
   register_function(L, (t_lua_function *) (lua_ui_functions));
 
-  /* Export LuaSoul `classes' */
+  /* Export LuaSoul `classes methods' */
   lui_style_register(L);
   lui_window_register(L);
   lui_chatbox_register(L);
@@ -197,7 +201,6 @@ keys_hook_t	key_hook_names[]=
     {KEY_SIC,		L"S-<insert>"},
     {KEY_SLEFT,		L"S-<left>"},
     {KEY_SRIGHT,	L"S-<right>"},
-    /* Bind 'only' 32 functions keys */
     {0,			NULL}
   };
 

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Thu Oct  7 22:41:34 2010 Guillaume Papin
-** Last update Sat Nov 20 18:06:12 2010 Guillaume Papin
+** Last update Sun Nov 21 17:13:26 2010 Guillaume Papin
 */
 
 #ifndef _UI_WINDOW_H_
@@ -13,8 +13,7 @@
 
 #include "lua/ooutils.h"
 
-#define WINDOW_CLASS	"Window"	  /* class table name */
-#define WINDOW_INST	"Window-instance" /* instance table name */
+#define WINDOW_CLASS	"Window"	  /* Object 'class' name */
 
   /* Constructor */
 int		lui_new_window(lua_State *L);

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 19:33:30 2010 Guillaume Papin
-** Last update Sun Nov 21 16:07:19 2010 Guillaume Papin
+** Last update Sun Nov 21 17:11:16 2010 Guillaume Papin
 */
 
 /*
@@ -112,7 +112,7 @@ int		lui_new_input(lua_State *L)
   *((INPUT **) lua_newuserdata(L, sizeof(i))) = i;
 
   /* set instance metatable to registered methods */
-  luaL_getmetatable(L, INPUT_INST);
+  luaL_getmetatable(L, INPUT_CLASS);
   lua_setmetatable(L, -2);
 
   return 1;
@@ -295,10 +295,7 @@ static const luaL_reg lui_input_instance_methods[]=
 */
 int		lui_input_register(lua_State *L)
 {
-  ooHandleFuncMapping(INPUT_CLASS,
-		      lui_input_class_methods,
-		      INPUT_INST,
-		      lui_input_instance_methods);
+  ooHandleFuncMapping(INPUT_CLASS, lui_input_instance_methods);
 }
 
 /*
@@ -310,9 +307,9 @@ static INPUT	*check_input(lua_State *L, int n)
   INPUT		**i;
 
   luaL_checktype(L, n, LUA_TUSERDATA);
-  i = (INPUT **) luaL_checkudata(L, n, INPUT_INST);
+  i = (INPUT **) luaL_checkudata(L, n, INPUT_CLASS);
   if (i == NULL || *i == NULL)
-    luaL_typerror(L, n, INPUT_INST);
+    luaL_typerror(L, n, INPUT_CLASS);
   return *i;
 }
 

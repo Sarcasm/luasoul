@@ -1,12 +1,6 @@
 #name : Create a LuaOO C file
 # --
 
-/*
-  \`Object model' inspired by:
-  http://lua-users.org/wiki/UserDataWithPointerExample
-  http://lua-users.org/wiki/ObjectProperties
-*/
-
 #include <stdlib.h>
 #include <curses.h>
 #include "lua/lua_utils.h"
@@ -14,15 +8,9 @@
 #include "ui/${1:`(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`}.h"
 
 /* Constructor */
-static const luaL_reg	${2:lui}_$1_class_methods[]=
-  {
-    {"new",		$2_new_$1},
-    {NULL,		NULL}
-  };
-
 /*
   Create a new $1
-  ${1:$(capitalize text)}.new()
+  ${1:$(capitalize text)}()
 */
 int		$2_new_$1(lua_State *L)
 {
@@ -93,10 +81,7 @@ static const luaL_reg $2_$1_instance_methods[]=
 */
 int		$2_$1_register(lua_State *L)
 {
-  ooHandleFuncMapping(${3:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS,
-  		      $2_$1_class_methods,
-  		      $3_INST,
-  		      $2_$1_instance_methods);
+  ooHandleFuncMapping(${3:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS, $2_$1_instance_methods);
 }
 
 

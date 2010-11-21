@@ -5,13 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 09:48:42 2010 Guillaume Papin
-** Last update Sun Nov 21 16:07:04 2010 Guillaume Papin
-*/
-
-/*
-  `Object model' inspired by:
-  http://lua-users.org/wiki/UserDataWithPointerExample
-  http://lua-users.org/wiki/ObjectProperties
+** Last update Sun Nov 21 17:09:13 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -37,12 +31,6 @@ static CHATBOX	*check_chatbox(lua_State *L, int n);
 static int	refresh_chatbox(CHATBOX *c);
 
 /* Constructor */
-
-static const luaL_reg	lui_chatbox_class_methods[]=
-  {
-    {"new",		lui_new_chatbox},
-    {NULL,		NULL}
-  };
 
 static CHATBOX	default_chatbox =
   {
@@ -95,7 +83,7 @@ int		lui_new_chatbox(lua_State *L)
   *((CHATBOX **) lua_newuserdata(L, sizeof(c))) = c;
 
   /* set instance metatable to registered methods */
-  luaL_getmetatable(L, CHATBOX_INST);
+  luaL_getmetatable(L, CHATBOX_CLASS);
   lua_setmetatable(L, -2);
 
 
@@ -196,10 +184,7 @@ static const luaL_reg lui_chatbox_instance_methods[]=
 */
 int		lui_chatbox_register(lua_State *L)
 {
-  ooHandleFuncMapping(CHATBOX_CLASS,
-  		      lui_chatbox_class_methods,
-  		      CHATBOX_INST,
-  		      lui_chatbox_instance_methods);
+  ooHandleFuncMapping(CHATBOX_CLASS, lui_chatbox_instance_methods);
 }
 
 /*
@@ -211,9 +196,9 @@ static CHATBOX	*check_chatbox(lua_State *L, int n)
   CHATBOX	**c;
 
   luaL_checktype(L, n, LUA_TUSERDATA);
-  c = (CHATBOX **) luaL_checkudata(L, n, CHATBOX_INST);
+  c = (CHATBOX **) luaL_checkudata(L, n, CHATBOX_CLASS);
   if (c == NULL || *c == NULL)
-    luaL_typerror(L, n, CHATBOX_INST);
+    luaL_typerror(L, n, CHATBOX_CLASS);
   return *c;
 }
 

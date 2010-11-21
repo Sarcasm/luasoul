@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Mon Oct 25 21:50:43 2010 Guillaume Papin
-** Last update Tue Nov  9 23:55:23 2010 Guillaume Papin
+** Last update Sun Nov 21 17:11:35 2010 Guillaume Papin
 */
 
 #ifndef _UI_STYLE_H_
@@ -13,8 +13,7 @@
 
 #include "lua/ooutils.h"
 
-#define STYLE_CLASS	"Style"		 /* class table name */
-#define STYLE_INST	"Style-instance" /* instance table name */
+#define STYLE_CLASS	"Style"		 /* Object 'class' name */
 
 /*
   This is the content of the userdata

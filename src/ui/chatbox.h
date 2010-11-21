@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Mon Nov  1 09:48:19 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:54 2010 Guillaume Papin
+** Last update Sun Nov 21 17:07:43 2010 Guillaume Papin
 */
 
 #ifndef _UI_CHATBOX_H_
@@ -13,8 +13,7 @@
 
 #include "lua/ooutils.h"
 
-#define CHATBOX_CLASS	"Chatbox"	   /* class table name */
-#define CHATBOX_INST	"Chatbox-instance" /* instance table name */
+#define CHATBOX_CLASS	"Chatbox"	   /* Object 'class' name */
 
   /* Constructor */
 int		lui_new_chatbox(lua_State *L);

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 19:40:43 2010 Guillaume Papin
-** Last update Sun Nov  7 19:52:31 2010 Guillaume Papin
+** Last update Sun Nov 21 17:10:00 2010 Guillaume Papin
 */
 
 #ifndef _UI_INPUT_H_
@@ -13,8 +13,7 @@
 
 #include "lua/ooutils.h"
 
-#define INPUT_CLASS	"Input"		 /* class table name */
-#define INPUT_INST	"Input-instance" /* instance table name */
+#define INPUT_CLASS	"Input"		 /* Object 'class' name */
 
   /* Constructor */
 int		lui_new_input(lua_State *L);

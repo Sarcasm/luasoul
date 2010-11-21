@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Sun Nov 21 16:07:27 2010 Guillaume Papin
+** Last update Sun Nov 21 17:13:16 2010 Guillaume Papin
 */
 
 /*
@@ -65,7 +65,7 @@ int		lui_new_window(lua_State *L)
   *userdata_pan = pan;
 
   /* set instance metatable to registered methods */
-  luaL_getmetatable(L, WINDOW_INST);
+  luaL_getmetatable(L, WINDOW_CLASS);
   lua_setmetatable(L, -2);
 
   return 1;
@@ -280,10 +280,7 @@ static const luaL_reg lui_window_instance_methods[]=
 */
 int		lui_window_register(lua_State *L)
 {
-  ooHandleFuncMapping(WINDOW_CLASS,
-		      lui_window_class_methods,
-		      WINDOW_INST,
-		      lui_window_instance_methods);
+  ooHandleFuncMapping(WINDOW_CLASS, lui_window_instance_methods);
 }
 
 /*
@@ -295,9 +292,9 @@ PANEL		*check_window(lua_State *L, int n)
   PANEL		**win;
 
   luaL_checktype(L, n, LUA_TUSERDATA);
-  win = (PANEL **) luaL_checkudata(L, n, WINDOW_INST);
+  win = (PANEL **) luaL_checkudata(L, n, WINDOW_CLASS);
   if (win == NULL)
-    luaL_typerror(L, n, WINDOW_INST);
+    luaL_typerror(L, n, WINDOW_CLASS);
   if (*win == NULL)
     luaL_error(L, "null window");
   return *win;

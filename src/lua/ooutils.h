@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Fri Oct 22 23:42:55 2010 Guillaume Papin
-** Last update Sun Nov 21 16:13:39 2010 Guillaume Papin
+** Last update Sun Nov 21 17:02:24 2010 Guillaume Papin
 */
 
 #ifndef _LUA_OOUTILS_H_
@@ -65,9 +65,7 @@ int		lua_oo_accessors(lua_State *L, const t_index_wrap *p);
   key as its arguments.
   When it is a table, Lua redoes the access in that table.
 */
-#define		ooHandleFuncMapping(className, classMethods,		\
-				    instName, instMethods)		\
-  luaL_register(L, className, classMethods);				\
+#define		ooHandleFuncMapping(instName, instMethods)		\
   luaL_newmetatable(L, instName);					\
   luaL_register(L, NULL, instMethods);					\
 									\

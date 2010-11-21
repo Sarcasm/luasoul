@@ -5,31 +5,12 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:15 2010 Guillaume Papin
-** Last update Sun Nov 21 12:26:02 2010 Guillaume Papin
+** Last update Sun Nov 21 16:50:53 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
 #include <locale.h>
 #include "ui/ui_utils.h"
-
-/**
- * This function create a new color pair
- * @param tmp if true pair number can be re-used later,
- * otherwise pair number is definitive.
- * @return the number of the new color pair
- */
-int		new_pair(int fg, int bg, int tmp)
-{
-  static int	last_pair = 1;	/* tmp pair number is 1 */
-
-  if (tmp == TRUE)
-    {
-      init_pair(1, fg, bg);
-      return COLOR_PAIR(1);
-    }
-  init_pair(++last_pair, fg, bg);	/* skip last pair and create a new pair */
-  return COLOR_PAIR(last_pair);
-}
 
 int		init_ui(void)
 {
