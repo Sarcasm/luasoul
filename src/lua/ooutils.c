@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Fri Oct 22 23:42:35 2010 Guillaume Papin
-** Last update Sun Nov  7 18:50:55 2010 Guillaume Papin
+** Last update Sun Nov 21 13:24:49 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -34,4 +34,3 @@ int		lua_oo_accessors(lua_State *L, const t_index_wrap *p)
       return p->func(L);
   return 0;			/* nothing is returned, TODO: maybe send nil ? */
 }
-

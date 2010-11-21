@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 21:02:00 2010 Guillaume Papin
-** Last update Sat Nov 20 20:55:56 2010 Guillaume Papin
+** Last update Sun Nov 21 01:21:25 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -14,34 +14,6 @@
 #include <stdarg.h>
 #include "lua_ui.h"
 #include "lua/lua_utils.h"
-
-/**
- * Get a wide character string corresponding or raise an error.
- * @param n	the index of the lua string to convert
- * @return	the wide character string
- */
-wchar_t		*check_wcstr(lua_State *L, int n)
-{
-  const char	*str;
-  size_t	 len;
-  wchar_t	*wstr;
-
-  luaL_checktype(L, n, LUA_TSTRING);
-  str = lua_tolstring(L, n, &len);
-
-  wstr = malloc((len + 1) * sizeof(wstr));
-  if (wstr != NULL)
-    {
-      size_t	nbytes;
-
-      nbytes = mbstowcs(wstr, str, len);
-      if (nbytes == (size_t) -1)
-	luaL_error(L, "An invalid multibyte sequence has been encountered.");
-      if (nbytes == len)
-	wstr[len] = L'\0';
-    }
-  return wstr;
-}
 
 /**
  * Create the lua environnement.
@@ -108,8 +80,10 @@ void		register_function(lua_State *L, t_lua_function functions[])
 
   TODO: Return the number of results sent to the Lua VM
 */
-void		call_lua_function(lua_State *L,const char *func,
-				  const char *sig, ...)
+void		call_lua_function(lua_State	*L,
+				  const char	*func,
+				  const char	*sig,
+				  ...)
 {
   va_list	vl;
   int		narg;		/* number of arguments  */
@@ -191,4 +165,56 @@ void		call_lua_function(lua_State *L,const char *func,
     nres++;
   }
   va_end(vl);
+}
+
+/**
+ * Get a wide character string corresponding or raise an error.
+ * @param n	the index of the lua string to convert
+ * @return	the wide character string
+ */
+wchar_t		*check_wcstr(lua_State *L, int n)
+{
+  const char	*str;
+  size_t	 len;
+  wchar_t	*wstr;
+
+  luaL_checktype(L, n, LUA_TSTRING);
+  str = lua_tolstring(L, n, &len);
+
+  wstr = malloc((len + 1) * sizeof(wstr));
+  if (wstr != NULL)
+    {
+      size_t	nbytes;
+
+      nbytes = mbstowcs(wstr, str, len);
+      if (nbytes == (size_t) -1)
+	luaL_error(L, "An invalid multibyte sequence has been encountered.");
+      if (nbytes == len)
+	wstr[len] = L'\0';
+    }
+  return wstr;
+}
+
+/**
+ * Call a Lua function when an error occur.
+ * This function is protected against infinite recursion.
+ */
+int		luasoul_error(lua_State *L, const char *msg)
+{
+  static int	in = 0;
+
+  /* already in the function */
+  if (in)
+    return 0;
+  in = 1;
+  /* 'protected block' */
+  {  
+    /* TODO: file, line number and function
+       http://stackoverflow.com/questions/2780500
+       http://stackoverflow.com/questions/2555856/current-line-number-in-lua
+       http://www.lua.org/manual/5.1/manual.html#lua_getinfo */
+    call_lua_function(L, "luasoul_error", "s", msg);
+  }
+  in = 0;
+  return 0;
 }

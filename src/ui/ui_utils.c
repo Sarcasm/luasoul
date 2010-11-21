@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:15 2010 Guillaume Papin
-** Last update Sat Nov 20 18:03:20 2010 Guillaume Papin
+** Last update Sun Nov 21 12:26:02 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -47,8 +47,10 @@ int		init_ui(void)
   start_color();
   nonl();	/* enable ^M */
 
+#ifdef NCURSES_VERSION
   /* get the terminal default color(for transparency) */
   use_default_colors();
+#endif /* NCURSES_VERSION */
 
   /* enable keypad once (with that each input have automatically keypad-mode on) */
   keypad(stdscr, TRUE);

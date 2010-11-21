@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 19:12:49 2010 Guillaume Papin
-** Last update Sat Nov 20 23:54:50 2010 Guillaume Papin
+** Last update Sun Nov 21 01:24:24 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -361,8 +361,8 @@ int		lui_handle_input(lua_State *L)
 
     if (wcstombs(lua_name, name_buf, MB_LEN_MAX * KEY_BUFSIZE) != (size_t) -1)
       call_lua_function(L, "key_received", "isb", ch, lua_name, !func_key);
-    /* else
-       TODO: ret == ERR, call error function */
+    else
+      luasoul_error(L, "Unknow input event\n");
   }
 
   return 0;

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Oct 25 21:49:04 2010 Guillaume Papin
-** Last update Sat Nov 20 18:08:42 2010 Guillaume Papin
+** Last update Sun Nov 21 16:00:06 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -98,7 +98,7 @@ int		lui_style_register(lua_State *L)
     key as its arguments.
     When it is a table, Lua redoes the access in that table.
   */
-  lua_pushliteral(L, "__metatable");
+  lua_pushliteral(L, "__index");
   lua_pushliteral(L, "you are a very bad man"); /* TODO: ... */
   lua_rawset(L, -3);
 

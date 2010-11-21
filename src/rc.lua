@@ -5,6 +5,64 @@ header = ([=[
 	||_|(_|_\(_)|_||
 ]=])
 
+-- http://www.reddit.com/r/reddit.com/comments/87gf7/notice_how_theyre_starting_to_crack_down_on_the/c08h5lu
+
+header = ([=[
+
+          /◝o     
+       (¤_¤)
+       .[__].
+█▄▄ ███ █▄▄ █▄█▄█ █▄█ ▀█▀
+
+☉_☉
+
+‹•.•›
+
+ō_ō`
+
+╔═╗
+║▓▒░░░░░░░░░░░░░░░░░░
+╚═╝
+IMMA CHARGIN MAH LAZER!
+
+I ♥ you
+
+ .'"'.        ___,,,___        .'``.
+: (\  `."'"```         ```"'"-'  /) ;
+ :  \                         `./  .'
+  `.                            :.'
+    /       __)        __)      \
+
+   |        (●)       (●)        |
+   |         /         \         |
+   |       /             \       |
+    \     |      .-.      |     /
+     `.   | . . /   \ . . |   .'
+       `-._\.'.(     ).'./_.-'
+           `\'  `._.'  '/'
+             `. --'-- .'
+               `-...-'
+
+
+               ("\ '' /").___..--' ' "`-._  
+               `●_ ●  )   `-.  (       ).`-.__.`) 
+               (_Y_.)'    ._   )  `._ `. ``-..-' 
+             _..`--'_. .-_/  /--'_.'  .'          
+            (i l).-' '    ((i). '   ((!.-'
+
+
+    ____
+   (►..◄)
+    ||||
+
+* PUNISHER *
+
+]=])
+
+function luasoul_error (msg)
+   io.stderr:write(msg)
+end
+
 buddy_list = {
    "login_1",
    "login_2",
@@ -74,6 +132,10 @@ me_style = Style.new{
 text_style = Style.new{
    foreground = colors.YELLOW,
 }
+error_style = Style.new{
+   foreground = colors.RED,
+   background = colors.YELLOW,
+}
 
 -- Tab styles
 tab_style = Style.new{
@@ -131,6 +193,13 @@ message_box.style = {bold = false, foreground = colors.BLUE}
 message_box:addstr(header)
 message_box:print_colored("     --8<----- v0.42 -----\n\n", {bold = false, foreground = colors.BLACK})
 message_box:refresh()
+
+
+-- if ncurses is ok print to message box
+function luasoul_error (msg)
+   message_box:print_colored(msg, error_style)
+   message_box:addch('\n')
+end
 
 
 -- Status bar
@@ -282,7 +351,13 @@ bind("C-<right>",	function () tab_bar:scroll(-1)			end)
 bind("RET",		function ()
 			   message_box:print_colored(os.date("%H:%M"), hour_style)
 			   message_box:print_colored(" - me: ", me_style)
-			   message_box:print_colored(input_field.buff .. "\n", text_style)
+			   local msg = input_field.buff
+			   -- Have fun !
+			   -- http://en.wikipedia.org/wiki/Interrobang
+			   -- http://superuser.com/questions/52671/how-do-i-create-unicode-smilies-like-
+			   msg = msg:gsub("?!", "‽")
+			   msg = msg:gsub(":%)", "☺")
+			   message_box:print_colored(msg .. "\n", text_style)
 			   input_field:erase() -- delete the content of the buffer
 			   message_box:refresh()
 			end)

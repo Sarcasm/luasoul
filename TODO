@@ -29,6 +29,9 @@
   - [ ] incorrect usage of isprint() ?
 	http://en.wikipedia.org/wiki/Ctype.h
 	read the end, the integer should be an unsigned char ?
+  - [ ] support pdcurses ?
+  - [ ] another lua OO model (with closure)
+	http://lua-users.org/wiki/ObjectOrientationClosureApproach
 * Lua <-> Ncurses [0%]
   - [ ] create window
   - [ ] create dialog/conversation

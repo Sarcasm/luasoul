@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 19:33:30 2010 Guillaume Papin
-** Last update Sat Nov 20 20:36:46 2010 Guillaume Papin
+** Last update Sun Nov 21 16:07:19 2010 Guillaume Papin
 */
 
 /*
@@ -15,7 +15,7 @@
 */
 
 #include <stdlib.h>
-#include <ctype.h>
+#include <wctype.h>
 #include <string.h>
 #include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
@@ -42,7 +42,7 @@ static int	resize_input_buff(INPUT *i);
 static int	refresh_input(INPUT *i);
 static int	get_current_position(const INPUT *i);
 static void	set_current_position(const INPUT *i, int pos);
-static int	input_addch_at_pos(INPUT *i, char ch);
+static int	input_addch_at_pos(INPUT *i, wchar_t ch);
 
 /* Constructor */
 
@@ -139,19 +139,7 @@ static const t_index_wrap	lui_input_get_methods[]=
 */
 int		lui_input_index(lua_State *L)
 {
-  const char	*key = luaL_checkstring(L, 2);
-
-  lua_getmetatable(L, 1);
-  lua_getfield(L, -1, key);
-
-  /* Either key is name of a method in the metatable */
-  if (!lua_isnil(L, -1))
-    return 1;
-
-  /* ... or its a field access, so recall as self.get(self, value). */
-  lua_settop(L, 2);   /* restore the initial call state, arg1, arg2 */
-
-  return lua_oo_accessors(L, lui_input_get_methods);
+  ooHandleIndex(lui_input_get_methods);
 }
 
 /*
@@ -307,30 +295,10 @@ static const luaL_reg lui_input_instance_methods[]=
 */
 int		lui_input_register(lua_State *L)
 {
-  luaL_register(L, INPUT_CLASS, lui_input_class_methods);
-  luaL_newmetatable(L, INPUT_INST);
-  luaL_register(L, NULL, lui_input_instance_methods);
-
-  /* __METATABLE */
-  /*
-    __metatable is for protecting metatables. If you do not want a program
-    to change the contents of a metatable, you set its __metatable field.
-    With that, the program cannot access the metatable (and therefore cannot
-    change it).
-  */
-  lua_pushliteral(L, "__metatable");
-  lua_pushvalue(L, -2);		/* dup methods table*/
-  lua_rawset(L, -3);		/* metatable.__metatable = metatable */
-
-  /* __INDEX */
-  /*
-    When it is a function, Lua calls it with the table and the absent
-    key as its arguments.
-    When it is a table, Lua redoes the access in that table.
-  */
-
-  lua_pop(L, 1);		/* drop metatable */
-  return 0;
+  ooHandleFuncMapping(INPUT_CLASS,
+		      lui_input_class_methods,
+		      INPUT_INST,
+		      lui_input_instance_methods);
 }
 
 /*
@@ -436,12 +404,12 @@ static int	refresh_input(INPUT *i)
   En fait il faut re faire la fonction pour qu'elle gere les insertions toussa
   et checker si le s[pos] ne depasse pas la taille du buffer
 */
-static int	input_addch_at_pos(INPUT *i, char ch)
+static int	input_addch_at_pos(INPUT *i, wchar_t ch)
 {
   int		x, y;
 
   getyx(i->pad, y, x);
-  if (isprint(ch) && winsch(i->pad, ' ') != ERR && waddch(i->pad, ch) != ERR)
+  if (iswprint(ch) && winsch(i->pad, ' ') != ERR && waddch(i->pad, ch) != ERR)
     {
       size_t	pos = x + y * i->width;
 
@@ -500,8 +468,8 @@ int		lui_erase_input(lua_State *L)
 */
 int		lui_addch_input(lua_State *L)
 {
-  INPUT		*i	= check_input(L, 1);
-  const char	*str	= luaL_checkstring(L, 2);
+  INPUT		*i   = check_input(L, 1);
+  const wchar_t	*str = check_wcstr(L, 2);
 
   input_addch_at_pos(i, *str);
   return 0;
@@ -513,8 +481,8 @@ int		lui_addch_input(lua_State *L)
 */
 int		lui_addstr_input(lua_State *L)
 {
-  INPUT		*i	= check_input(L, 1);
-  const char	*str	= luaL_checkstring(L, 2);
+  INPUT		*i   = check_input(L, 1);
+  const wchar_t	*str = check_wcstr(L, 2);
 
   while (*str && input_addch_at_pos(i, *str) == OK)
     str++;

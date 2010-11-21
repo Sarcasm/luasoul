@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 09:48:42 2010 Guillaume Papin
-** Last update Sat Nov 20 18:08:30 2010 Guillaume Papin
+** Last update Sun Nov 21 16:07:04 2010 Guillaume Papin
 */
 
 /*
@@ -121,19 +121,7 @@ static const t_index_wrap	lui_chatbox_get_methods[]=
 */
 int		lui_chatbox_index(lua_State *L)
 {
-  const char	*key = luaL_checkstring(L, 2);
-
-  lua_getmetatable(L, 1);
-  lua_getfield(L, -1, key);
-
-  /* Either key is name of a method in the metatable */
-  if (!lua_isnil(L, -1))
-    return 1;
-
-  /* ... or its a field access, so recall as self.get(self, value). */
-  lua_settop(L, 2);   /* restore the initial call state, arg1, arg2 */
-
-  return lua_oo_accessors(L, lui_chatbox_get_methods);
+  ooHandleIndex(lui_chatbox_get_methods);
 }
 
 /* Setters */
@@ -208,31 +196,10 @@ static const luaL_reg lui_chatbox_instance_methods[]=
 */
 int		lui_chatbox_register(lua_State *L)
 {
-  luaL_register(L, CHATBOX_CLASS, lui_chatbox_class_methods);
-  luaL_newmetatable(L, CHATBOX_INST);
-  luaL_register(L, NULL, lui_chatbox_instance_methods);
-
-  /* __METATABLE */
-  /*
-    __metatable is for protecting metatables. If you do not want a program
-    to change the contents of a metatable, you set its __metatable field.
-    With that, the program cannot access the metatable (and therefore cannot
-    change it).
-  */
-  lua_pushliteral(L, "__metatable");
-  lua_pushvalue(L, -2);		/* dup methods table*/
-  lua_rawset(L, -3);		/* metatable.__metatable = metatable */
-
-
-  /* __INDEX */
-  /*
-    When it is a function, Lua calls it with the table and the absent
-    key as its arguments.
-    When it is a table, Lua redoes the access in that table.
-  */
-
-  lua_pop(L, 1);		/* drop metatable */
-  return 0;
+  ooHandleFuncMapping(CHATBOX_CLASS,
+  		      lui_chatbox_class_methods,
+  		      CHATBOX_INST,
+  		      lui_chatbox_instance_methods);
 }
 
 /*

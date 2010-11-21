@@ -47,19 +47,7 @@ static const t_index_wrap	$2_$1_get_methods[]=
 */
 int		$2_$1_index(lua_State *L)
 {
-  const char	*key = luaL_checkstring(L, 2);
-
-  lua_getmetatable(L, 1);
-  lua_getfield(L, -1, key);
-
-  /* Either key is name of a method in the metatable */
-  if (!lua_isnil(L, -1))
-    return 1;
-
-  /* ... or its a field access, so recall as self.get(self, value). */
-  lua_settop(L, 2);   /* restore the initial call state, arg1, arg2 */
-
-  return lua_oo_accessors(L, $2_$1_get_methods);
+  ooHandleIndex($2_$1_get_methods);
 }
 
 
@@ -105,32 +93,10 @@ static const luaL_reg $2_$1_instance_methods[]=
 */
 int		$2_$1_register(lua_State *L)
 {
-  luaL_register(L, ${3:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS, $2_$1_class_methods);
-  luaL_newmetatable(L, $3_INST);
-  luaL_register(L, NULL, $2_$1_instance_methods);
-
-  /* __METATABLE */
-  /*
-    __metatable is for protecting metatables. If you do not want a program
-    to change the contents of a metatable, you set its __metatable field.
-    With that, the program cannot access the metatable (and therefore cannot
-    change it).
-  */
-  lua_pushliteral(L, "__metatable");
-  lua_pushvalue(L, -2);		/* dup methods table*/
-  lua_rawset(L, -3);		/* metatable.__metatable = metatable */
-
-
-  /* __INDEX */
-  /*
-    When it is a function, Lua calls it with the table and the absent
-    key as its arguments.
-    When it is a table, Lua redoes the access in that table.
-  */
-
-
-  lua_pop(L, 1);		/* drop metatable */
-  return 0;
+  ooHandleFuncMapping(${3:`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}_CLASS,
+  		      $2_$1_class_methods,
+  		      $3_INST,
+  		      $2_$1_instance_methods);
 }
 
 
