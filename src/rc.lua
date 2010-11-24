@@ -20,11 +20,6 @@ header = ([=[
 
 ō_ō`
 
-╔═╗
-║▓▒░░░░░░░░░░░░░░░░░░
-╚═╝
-IMMA CHARGIN MAH LAZER!
-
 I ♥ you
 
  .'"'.        ___,,,___        .'``.
@@ -50,12 +45,6 @@ I ♥ you
              _..`--'_. .-_/  /--'_.'  .'          
             (i l).-' '    ((i). '   ((!.-'
 
-
-    ____
-   (►..◄)
-    ||||
-
-* PUNISHER *
 
 ]=])
 
@@ -102,14 +91,10 @@ if string.find(TERM, "rxvt") then
    define_key("Oc",	"C-<right>")
    define_key("[b",	"S-<down>")
    define_key("[a",	"S-<up>")
-   -- define_key("[C",	"M-<right>")
-   -- define_key("[D", "M-<left>")
-   -- define_key("[C",	"M-<up>")
-   -- define_key("[D", "M-<down>")
-   define_key("[7^", "C-<home>")
-   define_key("[8^", "C-<end>") -- if not def it's <clearline>
-   define_key("[5^", "C-<PageUp>")
-   define_key("[6^", "C-<PageDown>")
+   define_key("[7^",	"C-<home>")
+   define_key("[8^",	"C-<end>") -- if not def it's <clearline>
+   define_key("[5^",	"C-<PageUp>")
+   define_key("[6^",	"C-<PageDown>")
 
       -- Xterm
 else if string.find(TERM, "xterm") then
@@ -199,6 +184,7 @@ message_box:refresh()
 function luasoul_error (msg)
    message_box:print_colored(msg, error_style)
    message_box:addch('\n')
+   message_box:refresh()
 end
 
 
@@ -300,16 +286,20 @@ end
    
 -- START KEY BINDING
 -- cursor motion & co
-bind("<right>",		function () input_field:move_cursor(1)			end)
+bind("<right>",		function () input_field.index = input_field.index + 1	end)
 bind("<left>",		function () input_field.index = input_field.index - 1	end)
 bind("<up>",		function () message_box:scroll(1)			end)
 bind("<down>",		function () message_box:scroll(-1)			end)
-bind("<home>",		function () input_field:move_cursor(-1000)		end)
+bind("<home>",		function () input_field.index = 0			end)
 bind("<end>",		function () input_field.index = #input_field.buff + 1	end)
 bind("<PageUp>",	function () message_box:scroll(height)			end)
 bind("<PageDown>",	function () message_box:scroll(-height)			end)
-bind("<delete>",	function () input_field:remove(1)			end)
-bind("<backspace>",	function () input_field:remove(-1)			end)
+bind("<delete>",	function () input_field:delch()				end)
+bind("<backspace>",	function ()
+			   if input_field.index == 1 then return end
+			   input_field.index = input_field.index - 1
+			   input_field:delch()
+			end)
 bind("C-y",		function () input_field:addstr(kill_ring)		end)
 
 bind("C-x C-z",		function () suspend()					end)
@@ -357,6 +347,7 @@ bind("RET",		function ()
 			   -- http://superuser.com/questions/52671/how-do-i-create-unicode-smilies-like-
 			   msg = msg:gsub("?!", "‽")
 			   msg = msg:gsub(":%)", "☺")
+			   msg = msg:gsub("0_o", "ō_ō`")
 			   message_box:print_colored(msg .. "\n", text_style)
 			   input_field:erase() -- delete the content of the buffer
 			   message_box:refresh()

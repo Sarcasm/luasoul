@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 20:52:18 2010 Guillaume Papin
-** Last update Sat Nov 20 13:35:07 2010 Guillaume Papin
+** Last update Wed Nov 24 21:53:50 2010 Guillaume Papin
 */
 
 #ifndef _UTILS_H_
@@ -18,7 +18,8 @@
 #define	UNUSED_ATTRIBUTE	__attribute__ ((__unused__))
 
 /* FIXME: suround this declaration by `#ifdef' */
-char		*strndup(const char *s, size_t n);
+char		*luasoul_strndup(const char *s, size_t n);
+char		*luasoul_strdup(const char *s);
 wchar_t		*luasoul_wcsdup(const wchar_t *s);
 wchar_t		*luasoul_wcsndup(const wchar_t *s, size_t n);
 

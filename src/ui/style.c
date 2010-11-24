@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Oct 25 21:49:04 2010 Guillaume Papin
-** Last update Sun Nov 21 17:23:39 2010 Guillaume Papin
+** Last update Wed Nov 24 21:56:37 2010 Guillaume Papin
 */
 
 #include <stdlib.h>

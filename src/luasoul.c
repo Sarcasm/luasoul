@@ -5,18 +5,19 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Wed Oct  6 00:43:31 2010 Guillaume Papin
-** Last update Sat Nov 20 18:11:18 2010 Guillaume Papin
+** Last update Wed Nov 24 21:55:27 2010 Guillaume Papin
 */
 
 #define	_POSIX_SOURCE		/* for kill() */
 #include <sys/types.h>
 #include <signal.h>
 
+#include <locale.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "utils.h"
-#include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
+#include "lua/lua_utils.h"
 
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -141,6 +142,8 @@ void			lOOoop(lua_State *L)
 int		main(void)
 {
   lua_State	*L;
+
+  setlocale(LC_ALL, "");
 
   /* init lua */
   L = load_lua();

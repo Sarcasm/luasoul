@@ -5,16 +5,14 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:15 2010 Guillaume Papin
-** Last update Sun Nov 21 16:50:53 2010 Guillaume Papin
+** Last update Wed Nov 24 21:56:46 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
-#include <locale.h>
 #include "ui/ui_utils.h"
 
 int		init_ui(void)
 {
-  setlocale(LC_ALL, "");
   initscr();
 
   /*

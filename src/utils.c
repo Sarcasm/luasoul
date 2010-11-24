@@ -5,10 +5,8 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Sun Sep 19 13:17:56 2010 Guillaume Papin
-** Last update Sat Nov 20 18:17:48 2010 Guillaume Papin
+** Last update Wed Nov 24 21:55:58 2010 Guillaume Papin
 */
-
-#define	_XOPEN_SOURCE 500	/* strdup() */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,9 +25,33 @@ void		error(const char *fmt, ...)
   va_end(argp);
 }
 
+/*
+  Duplicate a string.
+*/
+char		*luasoul_strdup(const char *s)
+{
+  char		*res;
+
+  res = malloc((strlen(s) + 1) * sizeof(*res));
+  return res != NULL ? strcpy(res, s) : NULL;
+}
 
 /*
-  Duplication a wide-character string s.
+  Duplicate at most n characters of the string s.
+*/
+char		*luasoul_strndup(const char *s, size_t n)
+{
+  char		*res;
+  size_t	 len = strlen(s);
+
+  if (n > len)
+    n = len;
+  res = malloc((n + 1) * sizeof(*res));
+  return res != NULL ? strncpy(res, s, n) : NULL;
+}
+
+/*
+  Duplicate a wide-character string.
 */
 wchar_t		*luasoul_wcsdup(const wchar_t *s)
 {
@@ -39,9 +61,8 @@ wchar_t		*luasoul_wcsdup(const wchar_t *s)
   return res != NULL ? wcscpy(res, s) : NULL;
 }
 
-
 /*
-  Duplication at most n characters of the wide-character string s.
+  Duplicate at most n characters of the wide-character string s.
 */
 wchar_t		*luasoul_wcsndup(const wchar_t *s, size_t n)
 {
@@ -54,27 +75,6 @@ wchar_t		*luasoul_wcsndup(const wchar_t *s, size_t n)
   return res != NULL ? wcsncpy(res, s, n) : NULL;
 }
 
-
-/*
-  FIXME: add ccompilation time flag here for include or not
-*/
-char		*strndup(const char *s, size_t n)
-{
-  char		*res;
-  size_t	len = strlen(s);
-
-  if (n > len)
-    n = len;
-  res = malloc((n + 1) * sizeof(*res));
-  if (res != NULL)
-    {
-      res[n] = '\0';
-      while (n--)
-	res[n] = s[n];
-    }
-  return res;
-}
-
 char		*get_rc(void)
 {
   char		rc_path[FILENAME_MAX];
@@ -82,7 +82,7 @@ char		*get_rc(void)
 
   /* file in current directory ? */
   if (! access(RC_NAME, F_OK))
-    return strdup(RC_NAME);
+    return luasoul_strdup(RC_NAME);
 
   /* file in XDG_CONFIG_HOME ? */
   dir = getenv("XDG_CONFIG_HOME");
@@ -91,7 +91,7 @@ char		*get_rc(void)
     strcat(rc_path, "/luasoul/");
     strcat(rc_path, RC_NAME);
     if (access(rc_path, F_OK) == 0)
-      return strdup(rc_path);
+      return luasoul_strdup(rc_path);
   }
   /* file not found */
   error("can't find configuration file: `%s'\n", RC_NAME);

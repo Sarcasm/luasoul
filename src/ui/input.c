@@ -4,70 +4,50 @@
 ** Made by Guillaume Papin
 ** Login   <guillaume.papin@epitech.eu>
 **
-** Started on  Mon Nov  1 19:33:30 2010 Guillaume Papin
-** Last update Sun Nov 21 17:11:16 2010 Guillaume Papin
-*/
-
-/*
-  `Object model' inspired by:
-  http://lua-users.org/wiki/UserDataWithPointerExample
-  http://lua-users.org/wiki/ObjectProperties
+** Started on  Sun Nov 21 17:44:35 2010 Guillaume Papin
+** Last update Wed Nov 24 23:49:03 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
-#include <wctype.h>
-#include <string.h>
-#include "lua/lua_utils.h"
+#include "utils.h"
 #include "ui/ui_utils.h"
+#include "lua/lua_utils.h"
 #include "ui/input.h"
 #include "ui/style.h"
 
 typedef struct
 {
   WINDOW	*pad;
-  char		*buff;
-  int		height;
-  int		width;
-  int		begin_y;
-  int		begin_x;
-  int		off;	   /* number of offscreen col (if height is 1)
+  int		 height;
+  int		 width;
+  int		 begin_y;
+  int		 begin_x;
+  int		 off;	   /* number of offscreen col (if height is 1)
 			      or lines (height > 1) */
-  size_t	max;		/* the position of the last char */
-  size_t	len;		/* the lenght of the buffer */
+  wchar_t	*wbuff;	/* contain spaces for the content of the window */
+  size_t	len;	/* wbuff lenght */
 }		INPUT;
 
-/* not in the header because need curses.h */
-static INPUT	*check_input(lua_State *L, int n);
-static int	resize_input_buff(INPUT *i);
-static int	refresh_input(INPUT *i);
 static int	get_current_position(const INPUT *i);
 static void	set_current_position(const INPUT *i, int pos);
-static int	input_addch_at_pos(INPUT *i, wchar_t ch);
-
-/* Constructor */
-
-static const luaL_reg	lui_input_class_methods[]=
-  {
-    {"new",		lui_new_input},
-    {NULL,		NULL}
-  };
+static int	alloc_cchar_buffer(INPUT *i);
 
 static INPUT	default_input =
   {
     NULL,			/* pad		*/
-    NULL,			/* buff		*/
     0,				/* height	*/
     0,				/* width 	*/
     0,				/* begin_y	*/
     0,				/* begin_x	*/
     0,				/* off	 	*/
-    0,				/* max	 	*/
+    NULL,			/* wccstr 	*/
     0,				/* len	 	*/
   };
 
+/* Constructor */
 /*
   Create a new input
-  Input.new
+  Input
   (
   -- required
   int		width,
@@ -83,8 +63,7 @@ static INPUT	default_input =
   - if height = 1	off is the number of off-screen cols
   - if height > 1	off is the number of off-screen lines
   - if off is not set	the field is not growable
-
-  FIXME: error handling, bad values
+  FIXME: check NULL pad
 */
 int		lui_new_input(lua_State *L)
 {
@@ -92,22 +71,22 @@ int		lui_new_input(lua_State *L)
 
   i		= malloc(sizeof(*i));
   *i		= default_input;
-  i->width	= luaL_checkint(L, 1);
-  i->height	= luaL_checkint(L, 2);
-  i->begin_x	= luaL_checkint(L, 3);
-  i->begin_y	= luaL_checkint(L, 4);
-  i->off	= luaL_optint(L, 5, 0);
+  luasoul_checkint(L, 1, i->width);
+  luasoul_checkint(L, 2, i->height);
+  luasoul_checkint(L, 3, i->begin_x);
+  luasoul_checkint(L, 4, i->begin_y);
+  luasoul_optint(L, 5, i->off, 0);
 
   if (i->height == 1)
     i->pad = newpad(i->height, i->width + i->off);
   else
     i->pad = newpad(i->height + i->off, i->width);
 
-  /* init buffer */
-  resize_input_buff(i);
-
-  /* don't refresh, if the style is set after for example */
-  /* refresh_input(c); */
+  if (i->pad == NULL || alloc_cchar_buffer(i))
+    {
+      luasoul_error(L, "can't create input");
+      return 0;
+    }
 
   *((INPUT **) lua_newuserdata(L, sizeof(i))) = i;
 
@@ -117,7 +96,6 @@ int		lui_new_input(lua_State *L)
 
   return 1;
 }
-
 
 /* Getters */
 
@@ -143,21 +121,6 @@ int		lui_input_index(lua_State *L)
 }
 
 /*
-  This function return the content of the buffer.
-
-  Stack:
-  1: the instance table
-  2: the accessed key
- */
-int		lui_input_get_buff(lua_State *L)
-{
-  const INPUT	*i = check_input(L, 1);
-
-  lua_pushlstring(L, i->buff, i->max);
-  return 1;
-}
-
-/*
   This function return the index of current character.
 
   Stack:
@@ -166,11 +129,45 @@ int		lui_input_get_buff(lua_State *L)
  */
 int		lui_input_get_index(lua_State *L)
 {
-  const INPUT	*i = check_input(L, 1);
+  INPUT		*i;
 
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
   lua_pushnumber(L, get_current_position(i) + 1); /* lua 'array' start at 1 */
   return 1;
 }
+
+/*
+  This function return the content of the buffer.
+
+  Stack:
+  1: the instance table
+  2: the accessed key
+  FIXME: use win_wchnstr, handle multiple lines ?
+*/
+int		lui_input_get_buff(lua_State *L)
+{
+  INPUT		*i;
+  int		 pos;
+  wchar_t	*buff;
+  int		 len;
+
+
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  pos = get_current_position(i);	    /* save cursor position */
+
+  /* assume i->height == 1 */
+  len = i->width * i->off;
+  buff = malloc((len + 1) * sizeof(*buff));
+  len = mvwinnwstr(i->pad, 0, 0, buff, len);
+  while (iswspace(buff[--len]))	/* remove leading space characters */
+    {}
+  buff[len + 1] = L'\0';
+  luasoul_pushwstring(L, buff);
+
+  set_current_position(i, pos);	/* restore cursor position */
+  return 1;
+}
+
 
 
 /* Setters */
@@ -178,11 +175,11 @@ int		lui_input_get_index(lua_State *L)
 /* this structure map members to setters() */
 static const t_index_wrap	lui_input_set_methods[]=
   {
-    {lui_input_set_style,	REG_MEMBER("style")},
-    {lui_input_set_buff,	REG_MEMBER("buff")},
     {lui_input_set_index,	REG_MEMBER("index")},
+    {lui_input_set_style,	REG_MEMBER("style")},
     {NULL,			NULL, 0}
   };
+
 
 /*
   input.key = true/false
@@ -199,56 +196,31 @@ int		lui_input_newindex(lua_State *L)
   return lua_oo_accessors(L, lui_input_set_methods);
 }
 
+
 /*
-  input:set_win_style{
+  input.style = {
   bold = true,
   foreground = 3,
   ...
   }
+  or input.style = myStyle
 
-  set the global style of the input, take effect immediatly for each row
-  of the input
+  Set the global style of the input, take effect immediatly for each row
+  of the input.
 
   Stack:
   2nd argument is a accessed member (style)
   3rd argument is a table who can contain all the attributes above
-
-  TODO: Optimisation ?
 */
-
 int		lui_input_set_style(lua_State *L)
 {
-  INPUT		*i = check_input(L, 1);
+  INPUT		*i;
   t_style	s;
 
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* fill i */
   get_style(L, 3, s);
+
   wbkgd(i->pad, s.on & ~s.off);
-  return 0;
-}
-
-/*
-  This function set the content of the buffer.
-
-  Stack:
-  1: the instance table
-  2: the accessed key
-  3: the new buff
- */
-int		lui_input_set_buff(lua_State *L)
-{
-  INPUT		*i = check_input(L, 1);
-  const char	*s = luaL_checkstring(L, 3);
-
-  i->max = lua_objlen(L, 3);
-
-  /* update buff */
-  if (i->max > i->len)
-    i->max = i->len;
-  strncpy(i->buff, s, i->max);
-
-  /* update screen */
-  werase(i->pad);
-  mvwaddnstr(i->pad, 0, 0, i->buff, i->max);
 
   return 0;
 }
@@ -263,13 +235,16 @@ int		lui_input_set_buff(lua_State *L)
  */
 int		lui_input_set_index(lua_State *L)
 {
-  const INPUT	*i = check_input(L, 1);
-  int		n = luaL_checkint(L, 3);
+  INPUT		*i;
+  int		 n;
 
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* fill i */
+  luasoul_checkint(L, 3, n);
   /* lua 'array' start a 1 */
   set_current_position(i, n - 1);
   return 0;
 }
+
 
 /* Utils */
 
@@ -277,18 +252,16 @@ static const luaL_reg lui_input_instance_methods[]=
   {
     {"refresh",		lui_refresh_input},
     {"erase",		lui_erase_input},
+    {"delch",		lui_delch_input},
     {"addch",		lui_addch_input},
-    {"addstr",		lui_addstr_input},
-    {"remove",		lui_remove_input},
-    {"move_cursor",	lui_input_move_cursor},
-    {"resize",		lui_resize_input},
-    {"move",		lui_move_input},
+    /* {"addstr",		lui_addstr_input}, */
     {"__index",		lui_input_index},
     {"__newindex",	lui_input_newindex},
     {"__gc",		lui_destroy_input},
     {"__tostring",	lui_input_tostring},
-    {NULL, NULL}
+    {NULL,		NULL}
   };
+
 
 /*
   Map all the fields of the class/object.
@@ -298,19 +271,40 @@ int		lui_input_register(lua_State *L)
   ooHandleFuncMapping(INPUT_CLASS, lui_input_instance_methods);
 }
 
-/*
-  Check if value at index `n' in the stack is a Input instance,
-  return it or raised an error.
-*/
-static INPUT	*check_input(lua_State *L, int n)
-{
-  INPUT		**i;
 
-  luaL_checktype(L, n, LUA_TUSERDATA);
-  i = (INPUT **) luaL_checkudata(L, n, INPUT_CLASS);
-  if (i == NULL || *i == NULL)
-    luaL_typerror(L, n, INPUT_CLASS);
-  return *i;
+/*
+  Allocate a cchar_t* buffer, for input.buff and friends.
+  Return 0 on success, 1 on error
+*/
+static int	alloc_cchar_buffer(INPUT *i)
+{
+  if (i->height == 1)
+    i->len = (i->width + i->off) * i->height;
+  else
+    i->len = (i->height + i->off) * i->width;
+  i->wbuff = malloc((i->len + 1) * sizeof(i->wbuff));
+  return i->wbuff == NULL;
+}
+
+/* TODO: Handle multi-column input */
+static int	refresh_input(INPUT *i)
+{
+  int	pad = getcurx(i->pad) - i->width + 1;
+
+  /*
+    pad < 0 is not tested because `man prefresh' say:
+    negative value for pad column are treated as if they were zero.
+  */
+  if (pad > i->off)
+    pad = i->off;
+
+  return prefresh(i->pad,		     /* pad               */
+		  0,			     /* pad line          */
+		  pad,			     /* pad column        */
+		  i->begin_y,		     /* screen line       */
+		  i->begin_x,		     /* screen column     */
+		  i->begin_y + i->height -1, /* screen max line   */
+		  i->begin_x + i->width -1); /* screen max column */
 }
 
 /*
@@ -329,9 +323,8 @@ static int	get_current_position(const INPUT *i)
 */
 static void	set_current_position(const INPUT *i, int pos)
 {
-  if (pos > (int) i->max)
-    pos = i->max;
-  else if (pos < 0)
+  /* FIXME: check max limits */
+  if (pos < 0)
     pos = 0;
 
   wmove(i->pad,
@@ -339,109 +332,18 @@ static void	set_current_position(const INPUT *i, int pos)
 	pos % i->width);	/* x */
 }
 
-/*
-  Resize (or create if was NULL) the buffer
-  set the following fields of the INPUT:
-  i->len
-  i->buff
-  i->max (only if max is out of range for the new buffer lenght)
-  @return ERR on error, OK on success
-*/
-static int	resize_input_buff(INPUT *i)
-{
-  /* FIXME: +1 for each \n ? */
-  i->len = (i->height == 1) ? i->width + i->off : i->width * (i->height
-							      + i->off);
-
-  /* max can't be upper to the lenght of the buffer */
-  if (i->max > i->len)
-    i->max = i->len;
-
-  /* allocate a new buffer */
-  i->buff = realloc(i->buff, sizeof(i->buff) * i->len + 1);
-  if (i->buff == NULL)
-    return ERR;
-
-  return OK;
-}
-
-/* TODO: Handle multi-column input */
-static int	refresh_input(INPUT *i)
-{
-  if (i->height == 1)
-    {
-      int	pad = getcurx(i->pad) - i->width + 1;
-
-      if (pad > i->off)
-      	pad = i->off;
-      /*
-	 pad < 0 is not tested because `man prefresh' say:
-	 negative vale for pad column are treated as if they were zero.
-      */
-      return prefresh(i->pad,			 /* pad		*/
-		      0,			 /* pad line	*/
-		      pad,			 /* pad column	*/
-		      i->begin_y,		 /* screen line	*/
-		      i->begin_x,		 /* screen column	*/
-		      i->begin_y + i->height -1, /* screen max line	*/
-		      i->begin_x + i->width -1); /* screen max column */
-    }
-  return prefresh(i->pad,		     /* pad		*/
-  		  0,			     /* pad line	*/
-  		  0,			     /* pad column	*/
-  		  i->begin_y,		     /* screen line	*/
-  		  i->begin_x,		     /* screen column	*/
-  		  i->begin_y + i->height -1, /* screen max line	*/
-  		  i->begin_x + i->width -1); /* screen max column */
-}
-
-/*
-  Put the char under the cursor position, and move the cursor one line
-  FIXME: handle tabulation, and other multi line char
-  En fait il faut re faire la fonction pour qu'elle gere les insertions toussa
-  et checker si le s[pos] ne depasse pas la taille du buffer
-*/
-static int	input_addch_at_pos(INPUT *i, wchar_t ch)
-{
-  int		x, y;
-
-  getyx(i->pad, y, x);
-  if (iswprint(ch) && winsch(i->pad, ' ') != ERR && waddch(i->pad, ch) != ERR)
-    {
-      size_t	pos = x + y * i->width;
-
-      if (pos > i->len)		/* shouldn't happen */
-	return ERR;
-
-      /* need to move next characters */
-      if (pos < i->max)
-	{
-	  size_t	next;
-
-	  for (next = i->max; next > pos; next--)
-	    i->buff[next] = i->buff[next -1];
-	}
-      i->buff[pos] = ch;
-      /* if (! insert_mode) */
-      i->max++;
-
-      return OK;
-    }
-  return ERR;
-}
-
-
 
 /* Methods  */
 
 /*
   input:refresh()
-  refresh the input (update physical input to match virtual input).
+  refresh/display/update input
 */
 int		lui_refresh_input(lua_State *L)
 {
-  INPUT		*i = check_input(L, 1);
+  INPUT		*i;
 
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
   refresh_input(i);
   return 0;
 }
@@ -452,166 +354,88 @@ int		lui_refresh_input(lua_State *L)
 */
 int		lui_erase_input(lua_State *L)
 {
-  INPUT		*i = check_input(L, 1);
+  INPUT		*i;
 
-  if (werase(i->pad) == OK)
-    i->max = 0;
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  werase(i->pad);
   return 0;
 }
 
 /*
-  input:addch(s)
-  put a char in the virtual input
+  input:addch(ch)
+  put a wide character
 */
 int		lui_addch_input(lua_State *L)
 {
-  INPUT		*i   = check_input(L, 1);
-  const wchar_t	*str = check_wcstr(L, 2);
+  INPUT		*i;
+  wchar_t	*wstr;
+  size_t	len;
+  cchar_t	ch;
 
-  input_addch_at_pos(i, *str);
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  luasoul_checklwcstr(L, 2, wstr, len);	    /* get wstring */
+
+  /* FIXME: correct attributs to setcchar() ? */
+  if (setcchar(&ch, wstr, WA_NORMAL, 0, NULL) == OK
+      && wins_wch(i->pad, &ch) == OK)
+    {
+      /* man setcchar()
+	 ...contain at most one spacing character, which must be the first */
+      len = (size_t) wcwidth(*wstr);
+      if (len != (size_t) -1 && len) /* don't move for 0 width */
+	set_current_position(i, get_current_position(i) + len);
+    }
+
+  return 0;
+}
+
+/*
+  input:delch()
+  delete a character
+*/
+int		lui_delch_input(lua_State *L)
+{
+  INPUT		*i;
+
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  wdelch(i->pad);
+
   return 0;
 }
 
 /*
   input:addstr(s)
-  put a string in the virtual input
+  put a wide character string
 */
-int		lui_addstr_input(lua_State *L)
-{
-  INPUT		*i   = check_input(L, 1);
-  const wchar_t	*str = check_wcstr(L, 2);
+/* int		lui_addstr_input(lua_State *L) */
+/* { */
+/* TODO */
+/*   INPUT		*i; */
+/*   wchar_t	*wstr; */
+/*   /\* const char	*wstr = luaL_checkstring(L, 2); *\/ */
+/*   size_t	len; */
+/*   cchar_t	c; */
 
-  while (*str && input_addch_at_pos(i, *str) == OK)
-    str++;
-  return 0;
-}
+/*   luasoul_checkclass(L, 1, INPUT_CLASS, i); /\* get input *\/ */
+/*   luasoul_checklwcstr(L, 2, wstr, len); */
+/*   /\* luaL_checkstring(L, 2); *\/ */
 
-/*
-  string input:remove(n)
-  removes the characters from the cursor position to `n'
-  return the removed characters
-*/
-int		lui_remove_input(lua_State *L)
-{
-  INPUT		*i	= check_input(L, 1);
-  char		n	= luaL_checkint(L, 2);
-  size_t	pos;
-  size_t	prev;
-  int		dec;
+/*   /\* wins_wstr(i->pad, wstr); *\/ */
 
 
-  pos = get_current_position(i);
+/* /\* int setcchar(cchar_t *wcval, const wchar_t *wch, const attr_t attrs, *\/ */
+/* /\*              short color_pair, const void *opts); *\/ */
+/*  setcchar(&c, wstr, A_NORMAL, 1, NULL); */
 
-  /*
-    if n is negative move the cursor |n| backwards characters
-    and set n to the opposite value, with that we can delete |n| characters
-  */
-  if (n < 0)
-    {
-      /* check border */
-      dec = pos + n;
-      if (dec < 0)
-	n -= dec;
 
-      /* move backward |n| characters */
-      pos += n;
-      set_current_position(i, pos);
+/*   /\* while (*wstr != L'\0') *\/ */
+/*  wadd_wch(i->pad, &c); */
+/*   /\* wins_wstr(i->pad, L"Pourquoi ça ?"); *\/ */
+/*   /\* wprintw(i->pad, "%s", wstr); *\/ */
+/*   set_current_position(i, get_current_position(i) + len); */
 
-      n = -n;
-    }
-  else				/* n > 0 */
-    {
-      /* check border */
-      dec = n + pos - i->max;
-      if (dec > 0)
-	n -= dec;
-    }
-
-  /* count number of successful delete */
-  for (dec = 0; n--; dec++)
-    if (wdelch(i->pad) == ERR)
-      break ;
-
-  /* nothing removed */
-  if (dec == 0)
-    return 0;
-
-  /* push the deleted characters */
-  lua_pushlstring(L, i->buff + pos, dec);
-
-  /* delete in buffer */
-  for (prev = pos; (prev + dec) < i->max; prev++)
-    i->buff[prev] = i->buff[prev + dec];
-
-  /* update max */
-  i->max -= dec;
-
-  return 1;
-}
-
-/*
-  input:move_cursor(n)
-  move the cursor n characters
-  if n is negative the cursor go backward
-  FIXME: vocabulary
-*/
-int		lui_input_move_cursor(lua_State *L)
-{
-  INPUT		*i	= check_input(L, 1);
-  const int	n	= luaL_checkint(L, 2);
-
-  set_current_position(i, get_current_position(i) + n);
-  return 0;
-}
-
-/*
-  input:resize(width, height)
-  resize the input
-
-  FIXME: prendre en compte l'offset
-*/
-int		lui_resize_input(lua_State *L)
-{
-  INPUT		*i	= check_input(L, 1);
-  const int	width	= luaL_checkint(L, 2);
-  const int	height	= luaL_checkint(L, 3);
-
-  if (width <= 0 && height <= 0)
-    {
-      luaL_error(L, "can't resize input: invalid dimension");
-      return 0;
-    }
-  if (wresize(i->pad, height, width + i->off) == OK)
-    {
-      i->height = height;
-      i->width = width;
-      resize_input_buff(i);
-    }
-  return 0;
-}
-
-/*
-  input:move(x, y)
-  move the input
-*/
-int		lui_move_input(lua_State *L)
-{
-  INPUT		*i = check_input(L, 1);
-  const int	x = luaL_checkint(L, 2);
-  const int	y = luaL_checkint(L, 3);
-
-  if (x < 0 && y < 0)
-    {
-      luaL_error(L, "can't move input: invalid position");
-      return 0;
-    }
-  else
-    {
-      i->begin_x = x;
-      i->begin_y = y;
-    }
-  return 0;
-}
+/*   return 0; */
+/* } */
 
 /*
   tostring(input), input.__tostring
@@ -619,9 +443,11 @@ int		lui_move_input(lua_State *L)
 */
 int		lui_input_tostring(lua_State *L)
 {
-  lua_pushfstring(L, "Input: %p", lua_touserdata(L, 1));
+  lua_pushfstring(L, "input: %p", lua_touserdata(L, 1));
   return 1;
 }
+
+
 
 /* Destructor */
 
@@ -635,9 +461,10 @@ int		lui_input_tostring(lua_State *L)
 */
 int		lui_destroy_input(lua_State *L)
 {
-  INPUT		*i = check_input(L, 1);
+  INPUT		*i;
 
-  delwin(i->pad);
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
   free(i);
+
   return 0;
 }

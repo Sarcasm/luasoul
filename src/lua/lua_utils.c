@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 21:02:00 2010 Guillaume Papin
-** Last update Sun Nov 21 01:21:25 2010 Guillaume Papin
+** Last update Wed Nov 24 23:10:52 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -168,31 +168,45 @@ void		call_lua_function(lua_State	*L,
 }
 
 /**
- * Get a wide character string corresponding or raise an error.
+ * Get a wide character string and store the length.
  * @param n	the index of the lua string to convert
+ * @param len
  * @return	the wide character string
  */
-wchar_t		*check_wcstr(lua_State *L, int n)
+wchar_t		*luasoul_tolwcstr(lua_State *L, int n, size_t *len)
 {
   const char	*str;
-  size_t	 len;
+  size_t	 lstr;
   wchar_t	*wstr;
 
   luaL_checktype(L, n, LUA_TSTRING);
-  str = lua_tolstring(L, n, &len);
+  str = lua_tolstring(L, n, &lstr);
 
-  wstr = malloc((len + 1) * sizeof(wstr));
+  wstr = malloc((lstr + 1) * sizeof(wstr));
   if (wstr != NULL)
     {
-      size_t	nbytes;
-
-      nbytes = mbstowcs(wstr, str, len);
-      if (nbytes == (size_t) -1)
-	luaL_error(L, "An invalid multibyte sequence has been encountered.");
-      if (nbytes == len)
-	wstr[len] = L'\0';
+      *len = mbstowcs(wstr, str, lstr);
+      if (*len == (size_t) -1)
+	{
+	  free(wstr);
+	  return NULL;
+	}
+      if (*len == lstr)
+	wstr[lstr] = L'\0';
     }
   return wstr;
+}
+
+/**
+ * Get a wide character string.
+ * @param n	the index of the lua string to convert
+ * @return	the wide character string
+ */
+wchar_t		*luasoul_towcstr(lua_State *L, int n)
+{
+  size_t	len;
+
+  return luasoul_tolwcstr(L, n, &len);
 }
 
 /**
@@ -217,4 +231,42 @@ int		luasoul_error(lua_State *L, const char *msg)
   }
   in = 0;
   return 0;
+}
+
+/* thx `luaL_checkudata()' in `lua-5.1.4/src/lauxlib.c:124' */
+void		*luasoul_toclass(lua_State *L, int n, const char *tname)
+{
+  void		**udata = lua_touserdata(L, n);
+
+  if (udata != NULL && lua_getmetatable(L, n))
+    {
+      lua_getfield(L, LUA_REGISTRYINDEX, tname);
+      if (lua_rawequal(L, -1, -2))
+	{
+	  lua_pop(L, 2);	/* remove both metatables */
+	  return *udata;
+	}
+    }
+  return NULL;
+}
+
+/**
+ * Push a wide character string on the stack.
+ */
+int		luasoul_pushwstring(lua_State *L, wchar_t *wstr)
+{
+  int		len = MB_LEN_MAX * wcslen(wstr);
+  char		*buff = malloc((len + 1) * sizeof(*buff));
+
+  if (buff == NULL || wcstombs(buff, wstr, len) == (size_t) -1)
+    {
+      lua_pushnil(L);
+      luasoul_error(L, "can't convert wide character string");
+    }
+  else
+    {
+      lua_pushstring(L, buff);
+      free(buff);
+    }
+  return 1;
 }

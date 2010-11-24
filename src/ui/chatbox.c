@@ -5,13 +5,13 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Mon Nov  1 09:48:42 2010 Guillaume Papin
-** Last update Sun Nov 21 17:09:13 2010 Guillaume Papin
+** Last update Wed Nov 24 21:56:15 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
 #include <string.h>
-#include "lua/lua_utils.h"
 #include "ui/ui_utils.h"
+#include "lua/lua_utils.h"
 #include "ui/chatbox.h"
 #include "ui/style.h"
 
@@ -45,7 +45,7 @@ static CHATBOX	default_chatbox =
 
 /*
   Create a new chatbox
-  Chatbox.new
+  Chatbox
   (
   -- required
   int		width,

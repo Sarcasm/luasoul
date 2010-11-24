@@ -5,16 +5,8 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 22:39:56 2010 Guillaume Papin
-** Last update Sun Nov 21 17:13:16 2010 Guillaume Papin
+** Last update Wed Nov 24 21:57:39 2010 Guillaume Papin
 */
-
-/*
-  `Object model' inspired by:
-  http://lua-users.org/wiki/UserDataWithPointerExample
-  http://lua-users.org/wiki/ObjectProperties
-*/
-
-#define	_BSD_SOURCE		/* strdup() */
 
 /* curses.h and _XOPEN_SOURCE_EXTENDED before panel.h */
 #include "ui/ui_utils.h"
@@ -31,16 +23,9 @@ PANEL	*check_window(lua_State *L, int n);
 
 /* Constructor */
 
-static const luaL_reg	lui_window_class_methods[]=
-  {
-    {"new",		lui_new_window},
-    {NULL,		NULL}
-  };
-
-
 /*
   Create a new window
-  Window.new()
+  Window()
 */
 int		lui_new_window(lua_State *L)
 {
@@ -50,8 +35,6 @@ int		lui_new_window(lua_State *L)
   int begin_y	= luaL_checkint(L, 4);
   WINDOW	*win;
   PANEL		*pan;
-  PANEL		**userdata_pan;
-
 
   win = newwin(height, width, begin_y, begin_x);
   wrefresh(win);
@@ -61,8 +44,7 @@ int		lui_new_window(lua_State *L)
   wnoutrefresh(win);
   doupdate();
 
-  userdata_pan = lua_newuserdata(L, sizeof(pan));
-  *userdata_pan = pan;
+  *((PANEL **) lua_newuserdata(L, sizeof(pan))) = pan;
 
   /* set instance metatable to registered methods */
   luaL_getmetatable(L, WINDOW_CLASS);
@@ -401,7 +383,7 @@ int		lui_addstr_window(lua_State *L)
   WINDOW	*w;
 
   p = check_window(L, 1);
-  str = strdup(luaL_checkstring(L, 2));
+  str = luasoul_strdup(luaL_checkstring(L, 2));
   w = panel_window(p);
 
   waddstr(w, str);

@@ -5,7 +5,7 @@
 ** Login   <guillaume.papin@epitech.eu>
 **
 ** Started on  Thu Oct  7 19:12:49 2010 Guillaume Papin
-** Last update Sun Nov 21 17:24:51 2010 Guillaume Papin
+** Last update Wed Nov 24 21:55:44 2010 Guillaume Papin
 */
 
 #include <stdlib.h>
@@ -13,8 +13,8 @@
 #include <wctype.h>
 #include "luasoul.h"
 #include "utils.h"
-#include "lua_ui.h"
 #include "ui/ui_utils.h"
+#include "lua_ui.h"
 #include "ui/style.h"
 #include "ui/chatbox.h"
 #include "ui/window.h"
@@ -160,8 +160,9 @@ static wchar_t		*user_keys_hook(wint_t		 keycode,
 int		lui_define_key(lua_State *L)
 {
   const char	*key_sequence = luaL_checkstring(L, 1);
-  const wchar_t	*name	      = check_wcstr(L, 2);
+  const wchar_t	*name;
 
+  luasoul_checkwcstr(L, 2, name);
   user_keys_hook(0, key_sequence, name);
   return 0;
 }
@@ -363,7 +364,7 @@ int		lui_handle_input(lua_State *L)
     char	lua_name[MB_LEN_MAX * KEY_BUFSIZE];
 
     if (wcstombs(lua_name, name_buf, MB_LEN_MAX * KEY_BUFSIZE) != (size_t) -1)
-      call_lua_function(L, "key_received", "isb", ch, lua_name, !func_key);
+      call_lua_function(L, "key_received", "isb", ch, lua_name, strlen(lua_name), !func_key);
     else
       luasoul_error(L, "Unknow input event\n");
   }

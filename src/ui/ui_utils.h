@@ -5,13 +5,13 @@
 ** Login   <guillaume.papin@epitech.eu>
 ** 
 ** Started on  Wed Oct  6 22:39:43 2010 Guillaume Papin
-** Last update Sat Nov 20 18:04:19 2010 Guillaume Papin
+** Last update Wed Nov 24 21:57:02 2010 Guillaume Papin
 */
 
 #ifndef _UI_UTILS_H_
 #define _UI_UTILS_H_
 
-#define _XOPEN_SOURCE_EXTENDED	/* want wide characters */
+/* #define _XOPEN_SOURCE_EXTENDED	/\* want wide character support *\/ */
 #include <curses.h>
 
 /*

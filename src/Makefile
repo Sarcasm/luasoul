@@ -5,7 +5,7 @@
 ## Login   <guillaume.papin@epitech.eu>
 ## 
 ## Started on  Wed Oct  6 00:43:13 2010 Guillaume Papin
-## Last update Sun Nov 21 14:50:37 2010 Guillaume Papin
+## Last update Wed Nov 24 21:54:48 2010 Guillaume Papin
 ##
 
 NAME		= luasoul
@@ -26,7 +26,10 @@ SRCS		= ./lua_ui.c	\
 OBJ		= $(SRCS:%.c=%.o)
 
 CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
-		-Wstrict-prototypes -Wuninitialized -I$(INC) -I../md5/
+		-Wstrict-prototypes -Wuninitialized -I$(INC) -I../md5/ \
+		-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
+#_XOPEN_SOURCE  for wc[s]witdh()
+#_XOPEN_SOURCE_EXTENDED  for ncurses wide character functions
 
 DEBUG		= -ggdb3
 
@@ -40,7 +43,7 @@ VALGRIND	= valgrind --fullpath-after=./
 
 PTY		= $(shell tty)
 
-all		: $(NAME)
+all		: debug		# in development
 
 $(NAME)		: $(OBJ)
 		@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
