@@ -1,12 +1,21 @@
 /*
-** ooutils.h for luasoul	 in /home/papin_g
-** 
-** Made by Guillaume Papin
-** Login   <guillaume.papin@epitech.eu>
-** 
-** Started on  Fri Oct 22 23:42:55 2010 Guillaume Papin
-** Last update Sun Nov 21 17:02:24 2010 Guillaume Papin
-*/
+ * ooutils.h for luasoul
+ * 
+ * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _LUA_OOUTILS_H_
 #define _LUA_OOUTILS_H_
