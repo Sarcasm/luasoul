@@ -35,7 +35,7 @@ SRCS		= ./lua_ui.c	\
 OBJ		= $(SRCS:%.c=%.o)
 
 CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
-		-Wstrict-prototypes -Wuninitialized -I$(INC) -I../md5/ \
+		-Wstrict-prototypes -Wuninitialized -I$(INC) \
 		-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
 #_XOPEN_SOURCE  for wc[s]witdh()
 #_XOPEN_SOURCE_EXTENDED  for ncurses wide character functions
