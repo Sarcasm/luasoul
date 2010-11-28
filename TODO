@@ -37,7 +37,6 @@
 	http://lua-users.org/wiki/UserDataWithPointerExample
 	http://lua-users.org/wiki/ObjectProperties
 * Lua <-> Ncurses [0%]
-  - [ ] create window
   - [ ] create dialog/conversation
 	a message box window and a form input field
   - [ ] resize
