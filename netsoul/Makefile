@@ -17,48 +17,40 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-NAME		= luasoul
+NAME		= libnetsoul.a
 
-NS_DIR		= ../netsoul/
+INC		= -I./
 
-INC		=  -I./		\
-		-I$(NS_DIR)
-
-SRCS		= ./lua_ui.c		\
-		./utils.c		\
-		./lua/ooutils.c		\
-		./lua/lua_utils.c	\
-		./ui/window.c		\
-		./ui/chatbox.c		\
-		./ui/style.c		\
-		./ui/input.c		\
-		./ui/ui_utils.c		\
-		./luasoul.c
+SRCS		= ./recv.c	\
+		./utils.c	\
+		./close.c	\
+		./set_status.c	\
+		./netsoul_connect.c	\
+		./md5.c	\
+		./get_msg_type.c	\
+		./send.c	\
 
 OBJ		= $(SRCS:%.c=%.o)
 
 CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
-		-Wstrict-prototypes -Wuninitialized \
-		-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED $(INC)
-#_XOPEN_SOURCE  for wc[s]witdh()
-#_XOPEN_SOURCE_EXTENDED  for ncurses wide character functions
+		-Wstrict-prototypes -Wuninitialized $(INC) $(DEBUG) \
+		-D_XOPEN_SOURCE
+# _XOPEN_SOURCE for getaddrinfo()
 
 DEBUG		= -ggdb3
 
-LDFLAGS		= -llua -lpanelw -lncursesw -L$(NS_DIR) -lnetsoul
+LDFLAGS		= -lopenssl # (for md5)
 
 CC		?= gcc
 
+AR		?= ar
+
 RM		= rm -f
 
-VALGRIND	= valgrind --fullpath-after=./
-
-PTY		= $(shell tty)
-
-all		: debug		# in development
+all		: $(NAME)
 
 $(NAME)		: $(OBJ)
-		@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
+		@$(AR) rcs $(NAME) $(OBJ)
 		@echo -e "  [OUT]\t\t\e[1;34m$(NAME)\e[0m"
 
 %.o		: %.c
@@ -74,16 +66,6 @@ fclean		: clean
 		@$(RM) $(NAME)
 
 re		: clean all
-
-debug		: clean
-		$(CC) $(DEBUG) $(CFLAGS) -o $(NAME) $(SRCS) $(LDFLAGS)
-
-valgrind	: debug
-		urxvtc -e sh -c "$(VALGRIND) ./$(NAME) 2>$(PTY)"
-
-malloc		: debug
-		urxvtc -e sh -c "$(VALGRIND) --tool=memcheck --leak-check=yes \
-		--show-reachable=yes ./$(NAME) 2>$(PTY)"
 
 check-syntax	:
 		gcc $(CFLAGS) -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \

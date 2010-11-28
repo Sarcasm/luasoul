@@ -19,21 +19,28 @@
 
 CURRENT_DIR	= ./
 
+NS_DIR		= ./netsoul/
+
 SRC_DIR		= ./src/
 
 .PHONY		: all clean fclean debug re
 
 all		:
+		$(MAKE) -C $(NS_DIR)
 		$(MAKE) -C $(SRC_DIR)
 
 clean		:
-		$(MAKE) -C $(SRC_DIR) clean
+		$(MAKE) -C $(NS_DIR)	clean
+		$(MAKE) -C $(SRC_DIR)	clean
 
 fclean		:
-		$(MAKE) -C $(SRC_DIR) fclean
+		$(MAKE) -C $(NS_DIR)	fclean
+		$(MAKE) -C $(SRC_DIR)	fclean
 
 debug		:
-		$(MAKE) -C $(SRC_DIR) debug
+		$(MAKE) -C $(NS_DIR)	debug
+		$(MAKE) -C $(SRC_DIR)	debug
 
 re		:
-		$(MAKE) -C $(SRC_DIR) re
+		$(MAKE) -C $(NS_DIR)	re
+		$(MAKE) -C $(SRC_DIR)	re
