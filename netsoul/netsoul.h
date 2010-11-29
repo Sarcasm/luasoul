@@ -37,6 +37,8 @@ int             netsoul_connect(const char       *server,
                                 const char       *location,
                                 const char      **err_msg);
 void            netsoul_close(int sockfd);
+int             netsoul_set_nonblocking(int sockfd);
+int             netsoul_set_blocking(int sockfd);
 
 /* common status :
    actif, away, connection, idle, lock, server, none */
