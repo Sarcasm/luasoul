@@ -4,70 +4,73 @@
 #+EMAIL:     papin_g@epitech.net
 * General [0%]
   - [ ] unicode support
-	http://mail.nl.linux.org/linux-utf8/2004-08/msg00001.html
-	http://lua-users.org/wiki/LuaUnicode
-	iconv ?
-	man 3X form
-	setlocale(LC_ALL, "");
+        http://mail.nl.linux.org/linux-utf8/2004-08/msg00001.html
+        http://lua-users.org/wiki/LuaUnicode
+        iconv ?
+        man 3X form
+        setlocale(LC_ALL, "");
   - [ ] read that
-	http://lua-users.org/wiki/LuaGenericCall
-	http://opengroup.org/onlinepubs/007908799/xcurses/
+        http://lua-users.org/wiki/LuaGenericCall
+        http://opengroup.org/onlinepubs/007908799/xcurses/
   - [ ] check newtable
-	lua_createtable when you know the size
-	file:///usr/share/doc/lua/manual.html#lua_createtable
+        lua_createtable when you know the size
+        file:///usr/share/doc/lua/manual.html#lua_createtable
   - [ ] in ncurses-5.7/test/ncurses.c
-	test the fullwidth_of() function, for wide characters support
+        test the fullwidth_of() function, for wide characters support
   - [ ] grep TODO and FIXME...
   - [ ] try replace select() by:
-	kqueue(), [p]poll(), pselect() ?
+        kqueue(), [p]poll(), pselect() ?
   - [ ] use luaL_ref() for calling lua function ?
   - [ ] update mail in headers (and git ?)
   - [ ] better signals handling
-	RTFM: sigprocmask pselect
+        RTFM: sigprocmask pselect
   - [ ] had ifdef SIGWINCH when used
   - [ ] bind form_driver() don't use direct call
   - [ ] incorrect usage of isprint() ?
-	http://en.wikipedia.org/wiki/Ctype.h
-	read the end, the integer should be an unsigned char ?
+        http://en.wikipedia.org/wiki/Ctype.h
+        read the end, the integer should be an unsigned char ?
   - [ ] support pdcurses ?
   - [ ] another lua OO model (with closure)
-	http://lua-users.org/wiki/ObjectOrientationClosureApproach
+        http://lua-users.org/wiki/ObjectOrientationClosureApproach
   - [ ] Help for Lua OO model
-	`Object model' inspired by:
-	http://lua-users.org/wiki/UserDataWithPointerExample
-	http://lua-users.org/wiki/ObjectProperties
+        `Object model' inspired by:
+        http://lua-users.org/wiki/UserDataWithPointerExample
+        http://lua-users.org/wiki/ObjectProperties
+  - [ ] Netsoul for windows
+        socket on windows explanation, tips
+        http://tangentsoft.net/wskfaq/articles/bsd-compatibility.html
 * Lua <-> Ncurses [0%]
   - [ ] create dialog/conversation
-	a message box window and a form input field
+        a message box window and a form input field
   - [ ] resize
-	resize forms and windows
+        resize forms and windows
   - [ ] functions for colored strings
-	find a simple format
+        find a simple format
   - [ ] get windows size
   - [ ] hide/unhide dialog/conversation
   - [ ] close
   - [ ] console dialog
-	for the splash screen
-	log unknow message from server
-	log lost connection
-	the input field send raw message :)
-	raw lua call ?
-	what else ?
+        for the splash screen
+        log unknow message from server
+        log lost connection
+        the input field send raw message :)
+        raw lua call ?
+        what else ?
   - [ ] menu with user entry
   - [ ] history size
-	limit the number of lines in a window
+        limit the number of lines in a window
   - [ ] addstr call tostring
   - [ ] add binding to panel_{above,below}
   - [ ] man wechochar
   - [ ] italic ?
-	enter_italics_mode ZH, ZR man terminfo
+        enter_italics_mode ZH, ZR man terminfo
   - [ ] unset color in set_win_attr()
   - [ ] set a function to redraw the entire screen
-	man clearok
+        man clearok
   - [ ] Bind define_key()
   - [ ] Use getxy() and create a userdata/table cursor for each window
-	contening x, y, visibility ?
-	Where each of this fields have a getter and a setter
+        contening x, y, visibility ?
+        Where each of this fields have a getter and a setter
   - [ ] lua_pushlightuserdata() on Constructors ?
   - [ ] restore scroll on chatbox when resize() is used ?
   - [ ] remove print_colored
@@ -75,44 +78,44 @@
   - [ ] insert mode for input
   - [ ] change clear() in window.c and add erase()
   - [ ] addstr() more like print()
-	addstr(a, b, c)
+        addstr(a, b, c)
   - [ ] try keypad keys
-	Find good name
+        Find good name
   - [ ] handle SIGCONT
-	from a kill command
+        from a kill command
   - [ ] handle KEY_RESIZE
-	but add a call to error() for lua
+        but add a call to error() for lua
 ** Signals [0%]
    - [ ] resize
-	 when a sigwinch is received
+         when a sigwinch is received
    - [ ] continue
-	 when a sigcont is received
+         when a sigcont is received
 * Lua <-> Netsoul
 ** Signals [0%]
    - [ ] new message
-	 with the message argument
+         with the message argument
    - [ ] buddy change state
    - [ ] buddy typing/untyping
    - [ ] new mail
-	 if it's possible
+         if it's possible
 * C [0%]
   - [ ] set window title
   - [ ] send WM urgent signal
   - [ ] real XDG settings
   - [ ] kerberos auth
         http://rubysoul-ng.googlecode.com/svn-history/r68/trunk/lib/netsoul_message.rb
-	http://code.google.com/p/rubysoul/
-	http://www.koders.com/cpp/fid3451F1758041834887A66FAC55609053D48138BD.aspx?s=md5#L1
-	http://redmine.kakesa.net/projects/go-soul/repository/revisions/master/entry/gosoul_type.go
-	http://code.google.com/p/adiumsoul/source/browse/trunk/NSPMessages.m
+        http://code.google.com/p/rubysoul/
+        http://www.koders.com/cpp/fid3451F1758041834887A66FAC55609053D48138BD.aspx?s=md5#L1
+        http://redmine.kakesa.net/projects/go-soul/repository/revisions/master/entry/gosoul_type.go
+        http://code.google.com/p/adiumsoul/source/browse/trunk/NSPMessages.m
   - [ ] ask for password
   - [ ] send content of a file
-	spawn an editor with a file to fill ?
+        spawn an editor with a file to fill ?
   - [ ] change error functions
-	if the user interface is launch, send message to `console dialog'
+        if the user interface is launch, send message to `console dialog'
 * Netsoul [0%]
   - [ ] auto reconnect
   - [ ] send big message
   - [ ] one watch_log call
-	for the moment it's a loop for each buddy
+        for the moment it's a loop for each buddy
 

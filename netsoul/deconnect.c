@@ -1,5 +1,5 @@
 /*
- * close.c for luasoul
+ * deconnect.c for luasoul
  * 
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
  * 
@@ -19,7 +19,17 @@
 
 #include <unistd.h>             /* close() */
 
-void            netsoul_close(int sockfd)
+#include "netsoul.priv.h"
+
+
+/**
+ * Close a connection to the netsoul server.
+ *
+ * @param       N
+ *                      the Netsoul session
+ */
+void            netsoul_deconnect(netsoulSession *N)
 {
-  close(sockfd);
+  close(N->sockfd);
+  N->sockfd = -1;
 }

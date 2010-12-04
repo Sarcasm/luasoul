@@ -1,5 +1,5 @@
 /*
- * netsoul_connect.c for luasoul
+ * connect.c for luasoul
  *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
  *
@@ -17,81 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
 #include <string.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-
-#include "netsoul.h"
 #include "netsoul.priv.h"
 
 /**
- * Convert human readable network address into structured binary
- * formats for the operating system's networking API. (thx wikipedia).
+ * Create a new socket and connect to the Netsoul server.
  *
- * @param       server
- *                      the server address (probably
- *                      'ns-server.epita.fr')
- * @param       port
- *                      the server port (probably '4242')
- * @param       err_msg
- *                      on error this param is filled with an
- *                      explanation
- *
- * @return a list of addrinfo structures or NULL on error.
- */
-static struct addrinfo  *netsoul_resolve_hostname(const char     *server,
-                                                  const char     *port,
-                                                  const char    **err_msg)
-{
-  int                   status;
-  struct addrinfo       hints;
-  struct addrinfo       *result;
-
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_flags = AI_CANONNAME;
-  hints.ai_family = AF_UNSPEC;  /* allow IPv4 or IPv6 */
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = IPPROTO_TCP; /* 0 for any protocol */
-  status = getaddrinfo(server, port, &hints, &result);
-  if (status != 0)
-    {
-      *err_msg = gai_strerror(status);
-      return NULL;
-    }
-
-  return result;
-}
-
-/**
- * Create a new socket for the given server and port.
- *
- * @param       server
- *                      the server address (probably
- *                      'ns-server.epita.fr')
- * @param       port
- *                      the server port (probably '4242')
+ * @param       N
+ *                      the Netsoul session
  * @param       err_msg
  *                      on error this param is filled with an
  *                      explanation
  *
  * @return the socket file descriptor, on error -1 is returned.
  */
-static int      netsoul_connect_socket(const char        *server,
-                                       const char        *port,
-                                       const char       **err_msg)
+static int              netsoul_connect_socket(netsoulSession *N, const char **err_msg)
 {
-  int                    sockfd;
-  struct addrinfo       *result, *iter;
-
-  /* resolve the real adress of the server */
-  result = netsoul_resolve_hostname(server, port, err_msg);
-  if (result == NULL)
-    return -1;
+  int                   sockfd;
+  struct addrinfo       *iter;
 
   /* real server name is `result->ai_canonname' */
-  for (iter = result; iter != NULL; iter = iter->ai_next)
+  for (iter = N->addr; iter != NULL; iter = iter->ai_next)
     {
       sockfd = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol);
 
@@ -100,62 +48,43 @@ static int      netsoul_connect_socket(const char        *server,
         continue;
 
       if (connect(sockfd, iter->ai_addr, sizeof(*iter->ai_addr)) == 0)
-        break ;
-      netsoul_close(sockfd);
-    }
-  freeaddrinfo(result);         /* no longer needed */
+        return sockfd;          /* SUCCESS */
 
-  if (iter == NULL || sockfd == -1)
-    {
-      *err_msg = "couldn't connect to the given server/port";
-      return -1;
+      netsoul_deconnect(N);
     }
 
-  return sockfd;
+  *err_msg = "couldn't connect";
+  return -1;
 }
 
 
 /**
- * Server authentication.
+ * MD5 authentication with socks password.
  *
- * @param       sockfd
- *                      the netsoul socket file descriptor
- * @param       login
- *                      user login
- * @param       socks_pass
- *                      socks password
- * @param       userdata
- *                      generally name + version of the client
- *                      (maximum 64 characters)
- * @param       location
- *                      location of the user (maximum 64 characters)
+ * @param       N
+ *                      the Netsoul session
  * @param       err_msg
  *                      on error this param is filled with an
  *                      explanation
  *
  * @return      0 on success, (!= 0 on error)
  */
-static int      netsoul_md5_auth(int          sockfd,
-                                 const char  *login,
-                                 const char  *socks_pass,
-                                 const char  *userdata,
-                                 const char  *location,
-                                 const char **err_msg)
+static int      netsoul_md5_auth(netsoulSession *N, const char **err_msg)
 {
   /*
     format of the first message:
     salut <socket number> <random md5 hash> <client ip><client port> \
     <server timestamp>
   */
-  char        *tmp = netsoul_recv(sockfd);
-  char        msg[SOCK_MSG_SIZE];
+  char        *tmp = netsoul_recv(N);
+  char        msg[NETSOUL_MSG_SIZE];
   char        *md5server;
   char        *cip;
   char        *cport;
 
   if (tmp == NULL)
     {
-      *err_msg = "netsoul_recv() error (return NULL)";
+      *err_msg = "netsoul_recv() error, NULL was returned";
       return -1;
     }
 
@@ -164,12 +93,12 @@ static int      netsoul_md5_auth(int          sockfd,
   strcpy(msg, tmp);
 
   /* pre-authentication message */
-  netsoul_send(sockfd, "%s\n", "auth_ag ext_user none -");
+  netsoul_send(N, "%s\n", "auth_ag ext_user none -");
 
   /* check server answer */
-  if (netsoul_get_msg_type(netsoul_recv(sockfd)) != REP_OK)
+  if (netsoul_get_msg_type(netsoul_recv(N)) != REP_OK)
     {
-      *err_msg = "server send bad response";
+      *err_msg = "bad response from server";
       return -1;
     }
 
@@ -189,19 +118,29 @@ static int      netsoul_md5_auth(int          sockfd,
 
   if (md5server == NULL && cip == NULL && cport == NULL)
     {
-      *err_msg = "unknow message from netsoul server";
+      *err_msg = "unknow message from server";
       return -1;
     }
 
-  netsoul_send(sockfd, "ext_user_log %s %s %.64s %.64s\n",
-               login,
-               netsoul_md5sum("%s-%s/%s%s", md5server, cip, cport, socks_pass),
-               userdata,
-               location);
+  {
+    char        url_enc_userdata[NETSOUL_DATA_SIZE];
+    char        url_enc_location[NETSOUL_DATA_SIZE];
 
-  if (netsoul_get_msg_type(netsoul_recv(sockfd)) != REP_OK)
+    /* encode strings */
+    netsoul_url_encode(url_enc_userdata, N->userdata, NETSOUL_DATA_SIZE -1);
+    netsoul_url_encode(url_enc_location, N->location, NETSOUL_DATA_SIZE -1);
+
+    netsoul_send(N, "ext_user_log %s %s %.64s %.64s\n",
+                 N->login,
+                 netsoul_md5sum("%s-%s/%s%s", md5server, cip, cport,
+                                N->socks_pass),
+                 url_enc_userdata,
+                 url_enc_location);
+  }
+
+  if (netsoul_get_msg_type(netsoul_recv(N)) != REP_OK)
     {
-      *err_msg = "server send bad response to ext_user_log";
+      *err_msg = "bad response from server (in reply to 'ext_user_log')";
       return -1;
     }
 
@@ -211,49 +150,29 @@ static int      netsoul_md5_auth(int          sockfd,
 /**
  * Create a new connection to the netsoul server.
  *
- * @param       server
- *                      the server address (probably
- *                      'ns-server.epita.fr')
- * @param       port
- *                      the server port (probably '4242')
- * @param       login
- *                      user login
- * @param       socks_pass
- *                      socks password
- * @param       userdata
- *                      generally name + version of the client
- *                      (maximum 64 characters)
- * @param       location
- *                      location of the user (maximum 64 characters)
+ * @param       N
+ *                      the Netsoul session
  * @param       err_msg
  *                      on error this param is filled with an
  *                      explanation
  *
- * @return the socket file descriptor (-1 on error and fill err_msg).
+ * @return on success 0, on error -1 and err_msg is filled.
  */
-int             netsoul_connect(const char       *server,
-                                const char       *port,
-                                const char       *login,
-                                const char       *socks_pass,
-                                const char       *userdata,
-                                const char       *location,
-                                const char      **err_msg)
+int             netsoul_connect(netsoulSession *N, const char **err_msg)
 {
-  int            sockfd;
-
   /* connect to server */
-  sockfd = netsoul_connect_socket(server, port, err_msg);
+  N->sockfd = netsoul_connect_socket(N, err_msg);
 
-  /* authentification */
-  if (sockfd != -1)
+  if (N->sockfd != -1)
     {
-      if (netsoul_md5_auth(sockfd, login, socks_pass, userdata,
-                           location, err_msg) == -1)
+      /* authentification */
+      if (netsoul_md5_auth(N, err_msg) != -1)
         {
-          netsoul_close(sockfd);
-          return -1;
+          netsoul_set_status(N, "actif");
+          return 0;
         }
-      netsoul_set_status(sockfd, "actif");
+      else
+        netsoul_deconnect(N);
     }
-  return sockfd;
+  return -1;
 }

@@ -31,22 +31,22 @@
 
 
 /* list of lua functions for the user interface */
-t_lua_function				lua_ui_functions[]=
+t_lua_function                          lua_ui_functions[]=
   {
 #ifdef NCURSES_VERSION
-    {"define_key",	lui_define_key},
-#endif	/* !NCURSES_VERSION */
-    {"get_screen_size",	lui_get_screen_size},
-    {"clear",		lui_clear},
-    {"suspend",		lui_suspend},
-    {"Style",		lui_new_style},
-    {"Window",		lui_new_window},
-    {"Chatbox",		lui_new_chatbox},
-    {"Input",		lui_new_input},
-    {NULL,		NULL}
+    {"define_key",      lui_define_key},
+#endif  /* !NCURSES_VERSION */
+    {"get_screen_size", lui_get_screen_size},
+    {"clear",           lui_clear},
+    {"suspend",         lui_suspend},
+    {"Style",           lui_new_style},
+    {"Window",          lui_new_window},
+    {"Chatbox",         lui_new_chatbox},
+    {"Input",           lui_new_input},
+    {NULL,              NULL}
   };
 
-void		init_lua_ui(lua_State *L)
+void            init_lua_ui(lua_State *L)
 {
   register_function(L, (t_lua_function *) (lua_ui_functions));
 
@@ -62,10 +62,10 @@ void		init_lua_ui(lua_State *L)
  * @return width the number of columns
  * @return height the number of lines
  */
-int		lui_get_screen_size(lua_State *L)
+int             lui_get_screen_size(lua_State *L)
 {
-  int		width;
-  int		height;
+  int           width;
+  int           height;
 
   getmaxyx(stdscr, height, width);
 
@@ -78,7 +78,7 @@ int		lui_get_screen_size(lua_State *L)
 /**
  * Clear the screen
  */
-int		lui_clear(lua_State *L UNUSED_ATTRIBUTE)
+int             lui_clear(lua_State *L UNUSED_ATTRIBUTE)
 {
   wclear(stdscr);
   wnoutrefresh(stdscr);
@@ -88,7 +88,7 @@ int		lui_clear(lua_State *L UNUSED_ATTRIBUTE)
 /**
  * Suspend Luasoul
  */
-int			lui_suspend(lua_State *L)
+int                     lui_suspend(lua_State *L)
 {
   /* SIGSTOP... */
   luasoul_suspend();
@@ -108,13 +108,13 @@ int			lui_suspend(lua_State *L)
 */
 
 /* the first value of a user defined key */
-#define	KEY_DEF_MIN	(KEY_MAX + 100)
+#define KEY_DEF_MIN     (KEY_MAX + 100)
 
 typedef struct
 {
-  wchar_t	*keyname;
-  int		 keycode;
-}		 t_bind;
+  wchar_t       *keyname;
+  int            keycode;
+}                t_bind;
 
 /*
   three cases:
@@ -125,12 +125,12 @@ typedef struct
 
   TODO: unbind, cleanup also know as free().
  */
-static wchar_t		*user_keys_hook(wint_t		 keycode,
-					const char	*key_sequence,
-					const wchar_t	*new_name)
+static wchar_t          *user_keys_hook(wint_t           keycode,
+                                        const char      *key_sequence,
+                                        const wchar_t   *new_name)
 {
-  static size_t	 size  = 0;
-  static t_bind	*binds = NULL;
+  static size_t  size  = 0;
+  static t_bind *binds = NULL;
 
   /* (1) define a new key */
   if (key_sequence != NULL && new_name != NULL)
@@ -141,18 +141,18 @@ static wchar_t		*user_keys_hook(wint_t		 keycode,
       /* update the key list */
       binds = realloc(binds, size * sizeof(*binds));
       if (binds != NULL)
-	{
-	  binds[size -1].keycode = size;
-	  binds[size -1].keyname = luasoul_wcsdup(new_name);
-	}
-      return NULL;		/* nothing to return */
+        {
+          binds[size -1].keycode = size;
+          binds[size -1].keyname = luasoul_wcsdup(new_name);
+        }
+      return NULL;              /* nothing to return */
     }
 
   /* (2) get the key name */
   keycode -= KEY_DEF_MIN;
   if (keycode < size)
     return binds[keycode].keyname; /* key found */
-  return NULL;			   /* not found */
+  return NULL;                     /* not found */
 }
 
 /*
@@ -166,10 +166,10 @@ static wchar_t		*user_keys_hook(wint_t		 keycode,
   for exemple:
   define_key("Oa", "C-<up>")
 */
-int		lui_define_key(lua_State *L)
+int             lui_define_key(lua_State *L)
 {
-  const char	*key_sequence = luaL_checkstring(L, 1);
-  const wchar_t	*name;
+  const char    *key_sequence = luaL_checkstring(L, 1);
+  const wchar_t *name;
 
   luasoul_checkwcstr(L, 2, name);
   user_keys_hook(0, key_sequence, name);
@@ -178,48 +178,48 @@ int		lui_define_key(lua_State *L)
 /*_____________________
   END USER DEFINED KEYS
 */
-#endif	/* !NCURSES_VERSION */
+#endif  /* !NCURSES_VERSION */
 
 
 typedef struct
 {
-  const wint_t	keycode;
-  const wchar_t	*keyname;
-}		keys_hook_t;
+  const wint_t  keycode;
+  const wchar_t *keyname;
+}               keys_hook_t;
 
-keys_hook_t	key_hook_names[]=
+keys_hook_t     key_hook_names[]=
   {
-    {KEY_UP,		L"<up>"},
-    {KEY_DOWN,		L"<down>"},
-    {KEY_LEFT,		L"<left>"},
-    {KEY_RIGHT,		L"<right>"},
-    {KEY_HOME,		L"<home>"},
-    {KEY_END,		L"<end>"},
-    {KEY_ENTER,		L"RET"},
-    {KEY_BACKSPACE,	L"<backspace>"},
-    {KEY_NPAGE,		L"<PageDown>"},
-    {KEY_PPAGE,		L"<PageUp>"},
-    {KEY_DL,		L"<delete-line>"},
-    {KEY_IL,		L"<insert-line>"},
-    {KEY_DC,		L"<delete>"},
-    {KEY_IC,		L"<insert>"},
-    {KEY_EOL,		L"<clearline>"},
-    {KEY_SDC,		L"S-<delete>"},
-    {KEY_SDL,		L"S-<delete-line>"},
-    {KEY_SHOME,		L"S-<home>"},
-    {KEY_SEND,		L"S-<end>"},
-    {KEY_SIC,		L"S-<insert>"},
-    {KEY_SLEFT,		L"S-<left>"},
-    {KEY_SRIGHT,	L"S-<right>"},
-    {0,			NULL}
+    {KEY_UP,            L"<up>"},
+    {KEY_DOWN,          L"<down>"},
+    {KEY_LEFT,          L"<left>"},
+    {KEY_RIGHT,         L"<right>"},
+    {KEY_HOME,          L"<home>"},
+    {KEY_END,           L"<end>"},
+    {KEY_ENTER,         L"RET"},
+    {KEY_BACKSPACE,     L"<backspace>"},
+    {KEY_NPAGE,         L"<PageDown>"},
+    {KEY_PPAGE,         L"<PageUp>"},
+    {KEY_DL,            L"<delete-line>"},
+    {KEY_IL,            L"<insert-line>"},
+    {KEY_DC,            L"<delete>"},
+    {KEY_IC,            L"<insert>"},
+    {KEY_EOL,           L"<clearline>"},
+    {KEY_SDC,           L"S-<delete>"},
+    {KEY_SDL,           L"S-<delete-line>"},
+    {KEY_SHOME,         L"S-<home>"},
+    {KEY_SEND,          L"S-<end>"},
+    {KEY_SIC,           L"S-<insert>"},
+    {KEY_SLEFT,         L"S-<left>"},
+    {KEY_SRIGHT,        L"S-<right>"},
+    {0,                 NULL}
   };
 
 
-#define AddToBuff(s)	wcsncat(buff, s, len)
+#define AddToBuff(s)    wcsncat(buff, s, len)
 /*
   Control keys
 */
-static void	append_cntrl(wint_t ch, wchar_t *buff, size_t len)
+static void     append_cntrl(wint_t ch, wchar_t *buff, size_t len)
 {
   if (ch == 0x1b)
     AddToBuff(L"ESC");
@@ -243,31 +243,31 @@ static void	append_cntrl(wint_t ch, wchar_t *buff, size_t len)
 /*
   Convert key value to key name
  */
-static void	append_keyname(wint_t ch, wchar_t *buff, size_t len)
+static void     append_keyname(wint_t ch, wchar_t *buff, size_t len)
 {
-  size_t	i;
+  size_t        i;
 
   /* Function keys, like arrow keys, delete, ... */
   for (i = 0; key_hook_names[i].keyname != NULL; i++)
     if (key_hook_names[i].keycode == ch)
       {
-	AddToBuff(key_hook_names[i].keyname);
-	return ;
+        AddToBuff(key_hook_names[i].keyname);
+        return ;
       }
 
 #ifdef NCURSES_VERSION
   /* handle user defined keys names */
   {
-    const wchar_t	*wname;
+    const wchar_t       *wname;
 
     wname = user_keys_hook(ch, NULL, NULL);
     if (wname != NULL)
       {
-	AddToBuff(wname);
-	return ;
+        AddToBuff(wname);
+        return ;
       }
   }
-#endif	/* !NCURSES_VERSION */
+#endif  /* !NCURSES_VERSION */
 
   /*
      Function keys (f1, f2, ...)
@@ -279,7 +279,7 @@ static void	append_keyname(wint_t ch, wchar_t *buff, size_t len)
   if(ch >= KEY_F(0) && ch <= KEY_F(63))
     {
       /* max width is 2 characters */
-      wchar_t	num[3];
+      wchar_t   num[3];
 
       AddToBuff(L"<f");
 
@@ -296,14 +296,14 @@ static void	append_keyname(wint_t ch, wchar_t *buff, size_t len)
 
   /* keep ncurses handle unknow characters */
   {
-    const char	*sname = key_name(ch);
+    const char  *sname = key_name(ch);
 
     if (sname != NULL)
       {
-	i = wcslen(buff);
-	while (*sname != '\0' && i < len)
-	  buff[i++] = *(sname++);
-	buff[i] = L'\0';
+        i = wcslen(buff);
+        while (*sname != '\0' && i < len)
+          buff[i++] = *(sname++);
+        buff[i] = L'\0';
       }
     /* TODO: call lua error function here, send keycode */
   }
@@ -323,31 +323,32 @@ static void	append_keyname(wint_t ch, wchar_t *buff, size_t len)
   FIXME:
   check if the called function exist
  */
-int		lui_handle_input(lua_State *L)
+int             lui_handle_input(lua_State *L)
 {
-  #define	KEY_BUFSIZE	42 /* maximum lenght for one keyname */
-  wchar_t	name_buf[KEY_BUFSIZE] = {0};
-  wint_t	ch;
-  int		ret;
-  int		func_key = 0;
+  #define       KEY_BUFSIZE     42 /* maximum lenght for one keyname */
+  wchar_t       name_buf[KEY_BUFSIZE] = {0};
+  wint_t        ch;
+  int           ret;
+  int           func_key = 0;
 
   /* get the character */
   ret = get_wch(&ch);
+
+  if (ret == ERR)               /* nothing was received */
+    return 0;
 
   /* handle Alt key */
   func_key = (ret == OK && ch == 0x1b);
   if (func_key)
     {
-      nodelay(stdscr, TRUE);
       ret = get_wch(&ch);
-      nodelay(stdscr, FALSE);
-      if (ret != ERR)
-	wcsncpy(name_buf, L"M-", KEY_BUFSIZE);
-      else			/* just was send ESC */
-	{
-	  ch = 0x1b;
-	  ret = OK;
-	}
+      if (ret != ERR)           /* just ESC was received */
+        wcsncpy(name_buf, L"M-", KEY_BUFSIZE);
+      else                      /* just was send ESC */
+        {
+          ch = 0x1b;
+          ret = OK;
+        }
     }
   func_key += (ret == KEY_CODE_YES || ch < 20);
 
@@ -355,22 +356,22 @@ int		lui_handle_input(lua_State *L)
     append_keyname(ch, name_buf, KEY_BUFSIZE -1);
   else if (ret == OK)
     {
-      if (ch < 0x20)		/* control characters */
-	append_cntrl(ch, name_buf, KEY_BUFSIZE -1);
-      else			/* a character */
-	{
-	  wchar_t	wc2wstr[2];
+      if (ch < 0x20)            /* control characters */
+        append_cntrl(ch, name_buf, KEY_BUFSIZE -1);
+      else                      /* a character */
+        {
+          wchar_t       wc2wstr[2];
 
-	  wc2wstr[0] = ch;
-	  wc2wstr[1] = L'\0';
-	  wcsncat(name_buf, wc2wstr, KEY_BUFSIZE -1);
-	}
+          wc2wstr[0] = ch;
+          wc2wstr[1] = L'\0';
+          wcsncat(name_buf, wc2wstr, KEY_BUFSIZE -1);
+        }
     }
   /* TODO: ret == ERR, call error function */
 
   /* convert wstring to string and call lua function */
   {
-    char	lua_name[MB_LEN_MAX * KEY_BUFSIZE];
+    char        lua_name[MB_LEN_MAX * KEY_BUFSIZE];
 
     if (wcstombs(lua_name, name_buf, MB_LEN_MAX * KEY_BUFSIZE) != (size_t) -1)
       call_lua_function(L, "key_received", "isb", ch, lua_name, strlen(lua_name), !func_key);

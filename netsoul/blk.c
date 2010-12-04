@@ -20,34 +20,34 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "netsoul.h"
+#include "netsoul.priv.h"
 
 /**
  * Set the netsoul socket in blocking mode.
  *
- * @param       sockfd
- *                      the netsoul socket file descriptor
+ * @param       N
+ *                      the Netsoul session
  *
  * @return      0 on success
  */
-int             netsoul_set_blocking(int sockfd)
+int             netsoul_set_blocking(netsoulSession *N)
 {
-  int           flags = fcntl(sockfd, F_GETFL);
+  int           flags = fcntl(N->sockfd, F_GETFL);
 
-  return fcntl(sockfd, F_SETFL, flags & ~O_NONBLOCK) != -1;
+  return fcntl(N->sockfd, F_SETFL, flags & ~O_NONBLOCK) != -1;
 }
 
 /**
  * Set the netsoul socket in non blocking mode.
  *
- * @param       sockfd
- *                      the netsoul socket file descriptor
+ * @param       N
+ *                      the Netsoul session
  *
  * @return      0 on success
  */
-int             netsoul_set_nonblocking(int sockfd)
+int             netsoul_set_nonblocking(netsoulSession *N)
 {
-  int           flags = fcntl(sockfd, F_GETFL);
+  int           flags = fcntl(N->sockfd, F_GETFL);
 
-  return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) != -1;
+  return fcntl(N->sockfd, F_SETFL, flags | O_NONBLOCK) != -1;
 }

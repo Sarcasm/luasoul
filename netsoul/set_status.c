@@ -19,22 +19,25 @@
 
 #include <time.h>
 
-#include "netsoul.h"
 #include "netsoul.priv.h"
 
 /**
- * Set a new netsoul status.
+ * Set a new Netsoul status.
  * common values :
  * actif, away, connection, idle, lock, server, none
  *
+ * @param       N
+ *                      the Netsoul session
  * @param       status
  *                      new status
  *
  * @return 0 on success (!= 0 on error).
  */
-int             netsoul_set_status(int sockfd, const char *status)
+int             netsoul_set_status(netsoulSession *N, const char *status)
 {
   /* status command format
      state <new status>:<timestamp> */
-  return netsoul_send(sockfd, "user_cmd state %s:%lu\n", status, time(NULL));
+  return netsoul_send(N, "user_cmd state %s:%lu\n",
+                      status,
+                      time(NULL));
 }

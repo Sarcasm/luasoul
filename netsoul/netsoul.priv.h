@@ -20,22 +20,51 @@
 #ifndef _LIBNETSOUL_PRIV_H_
 #define _LIBNETSOUL_PRIV_H_
 
-#define         SOCK_MSG_SIZE 4096
+#include "netsoul.h"
 
-char           *netsoul_recv(int sockfd);
-int             netsoul_send(int sockfd, const char *fmt, ...);
+/* Need to know 'struct addrinfo' */
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+#define NETSOUL_HOST_SIZE  64   /* max lenght for hostname              */
+#define NETSOUL_PORT_SIZE  32   /* max lenght for port                  */
+#define NETSOUL_DATA_SIZE  64   /* max lenght for location and userdata */
+#define NETSOUL_LOGIN_SIZE 20   /* max lenght for login                 */
+#define NETSOUL_SOCKS_SIZE 20   /* max lenght for socks passwd          */
+#define NETSOUL_MSG_SIZE  4096  /* max lenght for in/out socket message */
 
 /* utils */
 char            *netsoul_url_decode(char *s);
-char            *netsoul_url_encode(const char *s);
+char            *netsoul_url_encode(char *dest, const char *src, size_t len);
 char            *netsoul_md5sum(const char *fmt, ...);
 
+int             netsoul_send(netsoulSession *N, const char *fmt, ...);
+char            *netsoul_recv(netsoulSession *N);
+
+
+struct             netsoulSession
+{
+  char             login[NETSOUL_LOGIN_SIZE];
+  char             socks_pass[NETSOUL_SOCKS_SIZE];
+  char             userdata[NETSOUL_DATA_SIZE]; /* default 'LuaSoul v0.42' */
+  char             location[NETSOUL_DATA_SIZE];
+  struct addrinfo *addr;
+  int              sockfd;
+  netsoulCallbacks callbacks;
+};
+
+/**
+ * List of types for the netsoul server message.
+ */
+enum            NETSOUL_MSG_TYPE
+  {
+    REP_OK,
+    UNKNOW_TYPE
+  };
+
+/* common status :
+   actif, away, connection, idle, lock, server, none */
+enum NETSOUL_MSG_TYPE   netsoul_get_msg_type(const char *msg);
+
 #endif /* _LIBNETSOUL_PRIV_H_ */
-
-
-
-
-
-
-
-

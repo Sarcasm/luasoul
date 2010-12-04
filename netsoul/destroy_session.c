@@ -1,5 +1,5 @@
 /*
- * send.c for libnetsoul
+ * destroy_session.c for netsoul
  * 
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
  * 
@@ -17,36 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#undef  _XOPEN_SOURCE      /* vsnprintf() need _XOPEN_SOURCE >= 500 */
-#define _XOPEN_SOURCE 500  /* for vsnprintf() */
-#include <stdio.h>
-#include <stdarg.h>
-
-#include <stddef.h>
+#include <stdlib.h>
 
 #include "netsoul.priv.h"
 
 /**
- * Send a formated message to the netsoul server.
+ * Destroy the given Netsoul session.
  *
  * @param       N
  *                      the Netsoul session
- * @param       fmt, ...
- *                      formatted string like printf()
- *
- * @return 0 on success (!= 0 on error).
  */
-int             netsoul_send(netsoulSession *N, const char *fmt, ...)
+void             netsoul_destroy_session(netsoulSession *N)
 {
-  static char   msg[NETSOUL_MSG_SIZE];
-  int           nb_write;
-  va_list       argp;
+  if (N->addr != NULL)
+    freeaddrinfo(N->addr);      /* no longer needed */
 
-  va_start(argp, fmt);
-  nb_write = vsnprintf(msg, NETSOUL_MSG_SIZE -1, fmt, argp);
-  va_end(argp);
-  if (nb_write >= NETSOUL_MSG_SIZE || nb_write <= 0)
-    return -1;
+  if (N->sockfd != -1)
+    netsoul_deconnect(N);
 
-  return send(N->sockfd, msg, nb_write, 0) != -1; /* 0 on success */
+  free(N);
 }

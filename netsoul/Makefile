@@ -21,14 +21,17 @@ NAME		= libnetsoul.a
 
 INC		= -I./
 
-SRCS		= ./recv.c	\
+SRCS		= ./blk.c	\
+		./recv.c	\
 		./utils.c	\
-		./close.c	\
 		./set_status.c	\
-		./netsoul_connect.c	\
+		./create_session.c	\
+		./deconnect.c	\
 		./md5.c	\
 		./get_msg_type.c	\
+		./connect.c	\
 		./send.c	\
+		./destroy_session.c
 
 OBJ		= $(SRCS:%.c=%.o)
 
@@ -39,7 +42,7 @@ CFLAGS		= -Wall -Wextra -Wshadow -ansi -pedantic -Wwrite-strings \
 
 DEBUG		= -ggdb3
 
-LDFLAGS		= -lopenssl # (for md5)
+LDFLAGS		=
 
 CC		?= gcc
 

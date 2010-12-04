@@ -18,7 +18,6 @@
  */
 
 #include <stddef.h>
-#include <sys/socket.h>
 
 #include "netsoul.priv.h"
 
@@ -26,17 +25,17 @@
  * Receive a message from the netsoul server or wait for incoming
  * data.
  *
- * @param       sockfd
- *                      the socket file descriptor
+ * @param       N
+ *                      the Netsoul session.
  *
  * @return the received message or NULL on error.
  * @note the return value can be modified but the function free()
  * shouldn't be called because it's a static buffer.
  */
-char            *netsoul_recv(int sockfd)
+char            *netsoul_recv(netsoulSession *N)
 {
-  static char   msg[SOCK_MSG_SIZE] = {0};
-  const ssize_t nb_read = recv(sockfd, msg, SOCK_MSG_SIZE -1, 0);
+  static char   msg[NETSOUL_MSG_SIZE] = {0};
+  const ssize_t nb_read = recv(N->sockfd, msg, NETSOUL_MSG_SIZE -1, 0);
 
   if (nb_read == -1)
     return NULL;

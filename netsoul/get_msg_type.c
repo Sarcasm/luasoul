@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "netsoul.h"
+#include "netsoul.priv.h"
 
 typedef struct
 {

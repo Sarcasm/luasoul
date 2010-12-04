@@ -92,30 +92,40 @@ char            *netsoul_url_decode(char *s)
   return res;
 }
 
-char            *netsoul_url_encode(const char *s)
+/**
+ * URL encode a string.
+ *
+ * @param       dest
+ *                      the destination string
+ * @param       src
+ *                      the string to encode
+ * @param       len
+ *                      the lenght of the destination string
+ *
+ * @return dest
+ */
+char            *netsoul_url_encode(char *dest, const char *src, size_t len)
 {
-  char         *res;
-  int           i = 0;
+  size_t        i = 0;
 
-  res = malloc(3 * sizeof(*res) * strlen(s) + 1);
-  if (res == NULL)
-    return NULL;
-  while (*s)
+  while (*src && i < len)
     {
       /* reserved characters */
-      if (strchr(" \n\r\v*'();:@&=+$,/?#[]<>~.\"{}|\\-`_^%", *s) != NULL)
+      if (strchr(" \n\r\v*'();:@&=+$,/?#[]<>~.\"{}|\\-`_^%", *src) != NULL)
         {
-          res[i++] = '%';
-          res[i++] = "0123456789ABCDEF"[*s/16];
-          res[i] = "0123456789ABCDEF"[*s%16];
+          if (i + 2 >= len)
+            break;
+          dest[i++] = '%';
+          dest[i++] = "0123456789ABCDEF"[*src / 16];
+          dest[i] = "0123456789ABCDEF"[*src % 16];
         }
       /* not reserved */
       else
-        res[i] = *s;
-      s++;
+        dest[i] = *src;
+      src++;
       i++;
     }
-  res[i] = '\0';
+  dest[i] = '\0';
 
-  return res;
+  return dest;
 }
