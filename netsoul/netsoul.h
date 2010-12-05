@@ -21,6 +21,7 @@
 #define _LIB_NETSOUL_H_
 
 #define LOGIN_CHARACTERS        "abcdefghijklmnopqrstuvwxyz0123456789_"
+#define STATUS_CHARACTERS       LOGIN_CHARACTERS
 
 typedef struct netsoulSession  netsoulSession;
 
@@ -32,6 +33,10 @@ typedef struct
                                 const char *login);
   int           (*typing_end)(netsoulSession *N, void *data,
                               const char *login);
+  int           (*login)(netsoulSession *N, void *data, const char *login);
+  int           (*logout)(netsoulSession *N, void *data, const char *login);
+  int           (*status_changed)(netsoulSession *N, void *data,
+                                  const char *login, const char *status);
   int           (*unknow_event)(netsoulSession *N, void *data,
                                 const char *msg);
 }                netsoulCallbacks;
@@ -61,6 +66,7 @@ int             netsoul_set_nonblocking(netsoulSession *N);
 
 int             netsoul_event_handler(netsoulSession *N, void *data);
 
+int             netsoul_spy_users(netsoulSession *N, const char *logins[]);
 int             netsoul_set_status(netsoulSession *N, const char *status);
 
 #endif /* _LIB_NETSOUL_H_ */

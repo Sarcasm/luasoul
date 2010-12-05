@@ -35,5 +35,8 @@ void             netsoul_destroy_session(netsoulSession *N)
   if (N->sockfd != -1)
     netsoul_deconnect(N);
 
+  if (N->watch_list != NULL)
+    free(N->watch_list);
+
   free(N);
 }

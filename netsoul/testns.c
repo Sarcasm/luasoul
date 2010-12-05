@@ -81,6 +81,36 @@ int             ns_typing_end(netsoulSession *N, void *data, const char *login)
   return 0;
 }
 
+int             ns_login(netsoulSession *N, void *data, const char *login)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  printf("[0;32m%s login...[0m\n", login);
+
+  return 0;
+}
+
+int             ns_logout(netsoulSession *N, void *data, const char *login)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  printf("[0;32m%s logout...[0m\n", login);
+
+  return 0;
+}
+
+int             ns_status_changed(netsoulSession *N, void *data,
+                                  const char *login, const char *status)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  printf("[0;32m%s: status -> %s[0m\n", login, status);
+  return 0;
+}
+
 int             ns_unknow(netsoulSession *N, void *data, const char *msg)
 {
   UNUSED(N);
@@ -202,15 +232,18 @@ int             main(void)
   /* set callbacks */
   memset(&settings, 0, sizeof(settings));
 
-  settings.login                  = NULL; /* $USER should be fine */
-  settings.socks_pass             = pass;
-  settings.userdata               = (char *) "libnetsoul test";
-  settings.location               = (char *) "pas tres loin";
+  settings.login                    = NULL; /* $USER should be fine */
+  settings.socks_pass               = pass;
+  settings.userdata                 = (char *) "libnetsoul test";
+  settings.location                 = (char *) "pas tres loin";
   /* callbacks */
-  settings.callbacks.unknow_event = ns_unknow;
-  settings.callbacks.new_msg      = ns_new_msg;
-  settings.callbacks.typing_start = ns_typing_start;
-  settings.callbacks.typing_end   = ns_typing_end;
+  settings.callbacks.unknow_event   = ns_unknow;
+  settings.callbacks.new_msg        = ns_new_msg;
+  settings.callbacks.typing_start   = ns_typing_start;
+  settings.callbacks.typing_end     = ns_typing_end;
+  settings.callbacks.login          = ns_login;
+  settings.callbacks.logout         = ns_logout;
+  settings.callbacks.status_changed = ns_status_changed;
 
 
   /* Create the netsoul session */
@@ -225,7 +258,13 @@ int             main(void)
 
   if (netsoul_connect(N, &err) == 0)
     {
+      const char *buddies[] = {"papin_g", "chiron_f", NULL};
+
       info("connected !");
+      
+      netsoul_spy_users(N, buddies);
+      info("watch list added !");
+
       lOOoop(N);
     }
   else

@@ -52,6 +52,7 @@ struct             netsoulSession
   char             socks_pass[NETSOUL_SOCKS_SIZE];
   char             userdata[NETSOUL_DATA_SIZE]; /* default 'LuaSoul v0.42' */
   char             location[NETSOUL_DATA_SIZE];
+  char             *watch_list;
   struct addrinfo *addr;
   int              sockfd;
   netsoulCallbacks callbacks;

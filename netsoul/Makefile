@@ -23,6 +23,7 @@ INC		= -I./
 
 SRCS		= ./event_handler.c	\
 		./blk.c	\
+		./spy_user.c	\
 		./recv.c	\
 		./utils.c	\
 		./set_status.c	\

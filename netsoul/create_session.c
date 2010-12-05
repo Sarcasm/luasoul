@@ -130,5 +130,8 @@ netsoulSession          *netsoul_create_session(netsoulConfig  *settings,
   /* get callbacks */
   N->callbacks = settings->callbacks;
 
+  /* list of user to watch */
+  N->watch_list = NULL;
+
   return N;
 }
