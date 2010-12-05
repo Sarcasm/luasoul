@@ -17,20 +17,164 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+  Compile command:
+  gcc -I. -g -o netsoul testns.c -L. -lnetsoul
+*/
+
 #define _BSD_SOURCE             /* for getpass(), this file is
                                    just for testing the library
                                    so even is the function is
-                                   obselete is use it. */
+                                   obselete is use it.
+                                   snprintf() also need this.
+                                */
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <sys/select.h>
+
 #include "netsoul.h"
 
-/*
-  gcc -I. -g -o netsoul testns.c -L. -lnetsoul
-*/
+
+/* Thx: http://linuxgazette.net/issue65/padala.html */
+#define error(msg)   fprintf(stderr, "[0;31m%s[0m\n", msg)
+#define info(msg)    printf("[0;33m%s[0m\n", msg)
+#define msg_in(msg)  printf("[0;32m<< %s[0m\n", msg)
+#define msg_out(msg) printf("[0;34m>> %s[0m\n", msg)
+
+#define UNUSED(x)       (void) x
+
+int             ns_new_msg(netsoulSession *N, void *data,
+                           const char *login,
+                           const char *msg)
+{
+  char          buff[1024];
+
+  UNUSED(N);
+  UNUSED(data);
+
+  snprintf(buff, 1023, "%s say: '%s'", login, msg);
+  msg_in(buff);
+
+  return 0;
+}
+
+int             ns_typing_start(netsoulSession *N, void *data, const char *login)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  printf("[0;32m%s is typing...[0m\n", login);
+
+  return 0;
+}
+
+int             ns_typing_end(netsoulSession *N, void *data, const char *login)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  printf("[0;32m%s typing finish...[0m\n", login);
+
+  return 0;
+}
+
+int             ns_unknow(netsoulSession *N, void *data, const char *msg)
+{
+  UNUSED(N);
+  UNUSED(data);
+
+  msg_in(msg);
+
+  return 0;
+}
+
+char                    *get_line(void)
+{
+  static char           buff[1024];
+  ssize_t               nb_read;
+
+  nb_read = read(STDIN_FILENO, buff, 1023);
+  if (nb_read < 0)
+    return NULL;
+  else if (nb_read == 0)
+    {
+      *buff = 0;
+      return buff;
+    }
+
+  if (buff[nb_read - 1] == '\n') /* remove trailing LF */
+    nb_read--;
+  buff[nb_read] = '\0';
+
+  return buff;
+}
+
+void                    lOOoop(netsoulSession *N)
+{
+  fd_set                readfds;
+  int                   nfds;
+  int                   nb_fds;
+  int                   sockfd;
+
+  netsoul_set_nonblocking(N);
+  info("non blocking !");
+
+
+  while (1)
+    {
+      FD_ZERO(&readfds);
+      FD_SET(STDIN_FILENO, &readfds);
+
+      sockfd = netsoul_get_fd(N);
+      if (sockfd != -1 && sockfd > STDIN_FILENO)
+        {
+          nfds =  sockfd + 1;          
+          FD_SET(sockfd, &readfds);
+        }
+      else
+        nfds =  STDIN_FILENO + 1;
+
+      /*
+        select returns 0 if timeout, 1 if input available, -1 if error.
+        Set timeout to NULL for blocking operation
+      */
+      nb_fds = select(nfds, &readfds, NULL, NULL, NULL);
+
+      /* handle lost connection here */
+      if (nb_fds <= 0)
+        {
+          break ;
+          error("Select return an error.");
+        }
+
+      /*
+        Event from keyboard ?
+      */
+      if (FD_ISSET(STDIN_FILENO, &readfds))
+        {
+          const char *line = get_line();
+
+          if (line == NULL)
+            error("read() fail");
+          else
+            {
+              msg_out(line);
+              if (strcmp(line, "exit") == 0)
+                break ;
+            }
+        }
+
+      if (sockfd != -1 && FD_ISSET(sockfd, &readfds))
+        {
+          /* Send the netsoul state, and a void * pointer */
+          if (netsoul_event_handler(N, NULL) != 0)
+            error("Callback echec.");
+        }
+    }
+}
 
 int             main(void)
 {
@@ -55,29 +199,40 @@ int             main(void)
   /* printf("login: %s\n",         login); */
   printf("password: %s\n",      pass);
 
-  settings.login      = NULL;   /* $USER should be fine */
-  settings.socks_pass = pass;
-  settings.userdata   = NULL;
-  settings.location   = NULL;
-  settings.server     = NULL;
-  settings.port       = NULL;
+  /* set callbacks */
+  memset(&settings, 0, sizeof(settings));
 
-  N = netsoul_create_session(&settings, &err); /* callbacks */
+  settings.login                  = NULL; /* $USER should be fine */
+  settings.socks_pass             = pass;
+  settings.userdata               = (char *) "libnetsoul test";
+  settings.location               = (char *) "pas tres loin";
+  /* callbacks */
+  settings.callbacks.unknow_event = ns_unknow;
+  settings.callbacks.new_msg      = ns_new_msg;
+  settings.callbacks.typing_start = ns_typing_start;
+  settings.callbacks.typing_end   = ns_typing_end;
 
+
+  /* Create the netsoul session */
+  N = netsoul_create_session(&settings, &err);
   if (N == NULL)
-    fprintf(stderr, "error ! netsoul_create_session(): %s\n", err);
-  else
     {
-      printf("success !\n");
-      if (netsoul_connect(N, &err) == 0)
-        {
-          printf("connected !\n");
-          sleep(3);
-        }
-      else
-        printf("couldn't connect !\n");
-      netsoul_destroy_session(N);
-      printf("destroyed !\n");
+      fprintf(stderr, "error ! netsoul_create_session(): %s\n", err);
+      return 1;
     }
+  
+  info("netsoul_create_session() success !");
+
+  if (netsoul_connect(N, &err) == 0)
+    {
+      info("connected !");
+      lOOoop(N);
+    }
+  else
+    error(err);
+
+  netsoul_destroy_session(N);
+  info("destroyed !");
+
   return 0;
 }

@@ -20,23 +20,32 @@
 #ifndef _LIB_NETSOUL_H_
 #define _LIB_NETSOUL_H_
 
+#define LOGIN_CHARACTERS        "abcdefghijklmnopqrstuvwxyz0123456789_"
+
 typedef struct netsoulSession  netsoulSession;
 
 typedef struct
 {
-  char         *login;      /* default $USER                           */
-  char         *socks_pass; /* socks password (for md5 authentication) */
-  char         *userdata;   /* default 'LuaSoul v0.42'                 */
-  char         *location;   /* default '-'                             */
-  char         *server;     /* default 'ns-server.epita.fr'            */
-  char         *port;       /* default 4242                            */
-}               netsoulConfig;
+  int           (*new_msg)(netsoulSession *N, void *data, const char *login,
+                           const char *msg);
+  int           (*typing_start)(netsoulSession *N, void *data,
+                                const char *login);
+  int           (*typing_end)(netsoulSession *N, void *data,
+                              const char *login);
+  int           (*unknow_event)(netsoulSession *N, void *data,
+                                const char *msg);
+}                netsoulCallbacks;
 
 typedef struct
 {
-  int           (*callbackName1)(void *, char, char);
-  int           (*callbackName2)(void *, char, char, char);
-}                netsoulCallbacks;
+  char             *login;      /* default $USER                           */
+  char             *socks_pass; /* socks password (for md5 authentication) */
+  char             *userdata;   /* default 'LuaSoul v0.42'                 */
+  char             *location;   /* default '-'                             */
+  char             *server;     /* default 'ns-server.epita.fr'            */
+  char             *port;       /* default 4242                            */
+  netsoulCallbacks  callbacks;
+}               netsoulConfig;
 
 netsoulSession *netsoul_create_session(netsoulConfig  *settings,
                                        const char    **err_msg);
@@ -45,8 +54,12 @@ void            netsoul_destroy_session(netsoulSession *N);
 int             netsoul_connect(netsoulSession *N, const char **err_msg);
 void            netsoul_deconnect(netsoulSession *N);
 
+int             netsoul_get_fd(netsoulSession *N);
+
 int             netsoul_set_blocking(netsoulSession *N);
 int             netsoul_set_nonblocking(netsoulSession *N);
+
+int             netsoul_event_handler(netsoulSession *N, void *data);
 
 int             netsoul_set_status(netsoulSession *N, const char *status);
 

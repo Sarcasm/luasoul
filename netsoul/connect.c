@@ -96,7 +96,7 @@ static int      netsoul_md5_auth(netsoulSession *N, const char **err_msg)
   netsoul_send(N, "%s\n", "auth_ag ext_user none -");
 
   /* check server answer */
-  if (netsoul_get_msg_type(netsoul_recv(N)) != REP_OK)
+  if (! MessageIsOK(netsoul_recv(N)))
     {
       *err_msg = "bad response from server";
       return -1;
@@ -138,7 +138,7 @@ static int      netsoul_md5_auth(netsoulSession *N, const char **err_msg)
                  url_enc_location);
   }
 
-  if (netsoul_get_msg_type(netsoul_recv(N)) != REP_OK)
+  if (! MessageIsOK(netsoul_recv(N)))
     {
       *err_msg = "bad response from server (in reply to 'ext_user_log')";
       return -1;
@@ -168,7 +168,12 @@ int             netsoul_connect(netsoulSession *N, const char **err_msg)
       /* authentification */
       if (netsoul_md5_auth(N, err_msg) != -1)
         {
+          /* enable access to school resources */
+          netsoul_send(N, "%s\n", "user_cmd attach");
+
+          /* default state is 'connection' */
           netsoul_set_status(N, "actif");
+
           return 0;
         }
       else

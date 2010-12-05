@@ -21,14 +21,15 @@ NAME		= libnetsoul.a
 
 INC		= -I./
 
-SRCS		= ./blk.c	\
+SRCS		= ./event_handler.c	\
+		./blk.c	\
 		./recv.c	\
 		./utils.c	\
 		./set_status.c	\
 		./create_session.c	\
 		./deconnect.c	\
+		./get_fd.c	\
 		./md5.c	\
-		./get_msg_type.c	\
 		./connect.c	\
 		./send.c	\
 		./destroy_session.c

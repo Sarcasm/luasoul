@@ -27,6 +27,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+#define UNUSED(x)       (void) x
+
+
 #define NETSOUL_HOST_SIZE  64   /* max lenght for hostname              */
 #define NETSOUL_PORT_SIZE  32   /* max lenght for port                  */
 #define NETSOUL_DATA_SIZE  64   /* max lenght for location and userdata */
@@ -54,17 +57,6 @@ struct             netsoulSession
   netsoulCallbacks callbacks;
 };
 
-/**
- * List of types for the netsoul server message.
- */
-enum            NETSOUL_MSG_TYPE
-  {
-    REP_OK,
-    UNKNOW_TYPE
-  };
-
-/* common status :
-   actif, away, connection, idle, lock, server, none */
-enum NETSOUL_MSG_TYPE   netsoul_get_msg_type(const char *msg);
+#define MessageIsOK(msg) (strcmp(msg, "rep 002 -- cmd end\n") == 0)
 
 #endif /* _LIBNETSOUL_PRIV_H_ */

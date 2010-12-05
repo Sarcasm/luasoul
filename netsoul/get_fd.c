@@ -1,5 +1,5 @@
 /*
- * get_msg_type.c for luasoul
+ * get_fd.c for luasoul
  * 
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
  * 
@@ -17,34 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stddef.h>
-#include <string.h>
 #include "netsoul.priv.h"
 
-typedef struct
-{
-  const char            *str;   /* string to find */
-  enum NETSOUL_MSG_TYPE  type;
-}               Msg_types;
-
-static Msg_types msgs[]=
-  {
-    {"rep 002 -- cmd end\n",    REP_OK},
-    {NULL,                      UNKNOW_TYPE},
-  };
-
 /**
- * return the type of the given message.
+ * Get the socket file descriptor of the current session.
  *
- * @param       msg
- *                      message to be analyzed to get its type
+ * @return the socket file descriptor, or -1 if no file descriptor are
+ * avalaible.
  */
-enum NETSOUL_MSG_TYPE   netsoul_get_msg_type(const char *msg)
+int     netsoul_get_fd(netsoulSession *N)
 {
-  int           i;
-
-  for (i = 0; msgs[i].str != NULL; i++)
-    if (strstr(msg, msgs[i].str) != NULL)
-      return msgs[i].type;
-  return UNKNOW_TYPE;
+  return N->sockfd;
 }

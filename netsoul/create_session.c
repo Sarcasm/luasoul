@@ -127,5 +127,8 @@ netsoulSession          *netsoul_create_session(netsoulConfig  *settings,
       return NULL;
     }
 
+  /* get callbacks */
+  N->callbacks = settings->callbacks;
+
   return N;
 }
