@@ -66,7 +66,14 @@ int             netsoul_set_nonblocking(netsoulSession *N);
 
 int             netsoul_event_handler(netsoulSession *N, void *data);
 
-int             netsoul_spy_users(netsoulSession *N, const char *logins[]);
+int             netsoul_send_msg(netsoulSession *N, const char *login,
+                                 const char *msg);
+int             netsoul_send_typing_start(netsoulSession *N,
+                                          const char *login);
+int             netsoul_send_typing_end(netsoulSession *N,
+                                        const char *login);
 int             netsoul_set_status(netsoulSession *N, const char *status);
+int             netsoul_spy_user(netsoulSession *N, const char *login);
+int             netsoul_spy_users(netsoulSession *N, const char *logins[]);
 
 #endif /* _LIB_NETSOUL_H_ */

@@ -194,6 +194,12 @@ void                    lOOoop(netsoulSession *N)
               msg_out(line);
               if (strcmp(line, "exit") == 0)
                 break ;
+              if (*line == '>')
+                netsoul_send_msg(N, "papin_g", line + 1);
+              if (*line == '|')
+                netsoul_send_typing_start(N, "papin_g");
+              if (*line == '\\')
+                netsoul_send_typing_end(N, "papin_g");
             }
         }
 
@@ -258,7 +264,7 @@ int             main(void)
 
   if (netsoul_connect(N, &err) == 0)
     {
-      const char *buddies[] = {"papin_g", "chiron_f", NULL};
+      const char *buddies[] = {"papin_g", NULL};
 
       info("connected !");
       

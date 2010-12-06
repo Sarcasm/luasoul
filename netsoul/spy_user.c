@@ -23,6 +23,25 @@
 #include "netsoul.priv.h"
 
 /**
+ * Watch the activity of the given user.
+ * activity can be: login, logout, status change, ...
+ *
+ * @param       login
+ *                      the login of the user to watch
+ *
+ * @return 0 on success, -1 on error.
+ */
+int             netsoul_spy_user(netsoulSession *N, const char *login)
+{
+  const char    *buddy[2];
+
+  buddy[0] = login;
+  buddy[1] = NULL;
+
+  return netsoul_spy_users(N, buddy);
+}
+
+/**
  * Watch the activity of the given list of users.
  * activity can be: login, logout, status change, ...
  *
@@ -86,7 +105,6 @@ int             netsoul_spy_users(netsoulSession *N, const char *logins[])
         }
     }
 
-  return (netsoul_send(N,
-                       "user_cmd watch_log_user {%s}\n",
+  return (netsoul_send(N, "user_cmd watch_log_user {%s}\n",
                        N->watch_list) != 0) ? -1 : 0;
 }

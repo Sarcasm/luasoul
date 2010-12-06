@@ -30,6 +30,7 @@
  */
 void            netsoul_deconnect(netsoulSession *N)
 {
+  netsoul_send(N, "exit\n");
   close(N->sockfd);
   N->sockfd = -1;
 }

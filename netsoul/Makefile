@@ -22,6 +22,7 @@ NAME		= libnetsoul.a
 INC		= -I./
 
 SRCS		= ./event_handler.c	\
+		./send_typing.c	\
 		./blk.c	\
 		./spy_user.c	\
 		./recv.c	\
@@ -33,7 +34,8 @@ SRCS		= ./event_handler.c	\
 		./md5.c	\
 		./connect.c	\
 		./send.c	\
-		./destroy_session.c
+		./destroy_session.c	\
+		./send_msg.c
 
 OBJ		= $(SRCS:%.c=%.o)
 
