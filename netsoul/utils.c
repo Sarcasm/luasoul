@@ -111,7 +111,14 @@ char            *netsoul_url_encode(char *dest, const char *src, size_t len)
   while (*src && i < len)
     {
       /* reserved characters */
-      if (strchr(" \n\r\v*'();:@&=+$,/?#[]<>~.\"{}|\\-`_^%", *src) != NULL)
+      /* a-zA-Z0-9_.\-\\ */
+      /* if (strchr(" \n\r\v*'();:@&=+$,/?#[]<>~.\"{}|\\-`_^%", *src) != NULL) */
+      if ((*src < 'a' || *src > 'z') &&
+          (*src < 'A' || *src > 'Z') &&
+          (*src < '0' || *src > '9') &&
+          *src != '_' &&
+          *src != '-' &&
+          *src != '\\')
         {
           if (i + 2 >= len)
             break;
