@@ -104,7 +104,7 @@ static int      netsoul_md5_auth(netsoulSession *N, const char **err_msg)
 
   /*
     final auth format:
-    ext_user_log <login user> <md5 answer> <user data> <user location>
+    ext_user_log <login user> <md5 answer> <user location> <user data>
     maximum lenght for 'userdata' and 'location' is 64
     where md5 answer is:
     MD5("<md5 server>-<client ip>/<client port><pass socks>")
@@ -134,8 +134,8 @@ static int      netsoul_md5_auth(netsoulSession *N, const char **err_msg)
                  N->login,
                  netsoul_md5sum("%s-%s/%s%s", md5server, cip, cport,
                                 N->socks_pass),
-                 url_enc_userdata,
-                 url_enc_location);
+                 url_enc_location,
+                 url_enc_userdata);
   }
 
   if (! MessageIsOK(netsoul_recv(N)))

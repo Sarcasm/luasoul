@@ -1,5 +1,5 @@
 /*
- * luasoul.h for luasoul
+ * lua_protocol.h for luasoul
  * 
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
  * 
@@ -17,14 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LUASOUL_H_
-#define _LUASOUL_H_
+#ifndef _LUA_PROTOCOL_H_
+#define _LUA_PROTOCOL_H_
 
-#include <lua.h>
+#include "lua/lua_utils.h"
 
-int             luasoul_quit(lua_State *L);
-void            luasoul_suspend(void);
-void            luasoul_resume(void);
-void            luasoul_resize(lua_State *L);
+/* C-Lua stuff */
+void            init_lua_protocol(lua_State *L);
+void            create_protocol_ref(lua_State *L);
+int             get_protocol_ref(lua_State *L);
 
-#endif /* _LUASOUL_H_ */
+/* Thx $(uuidgen) */
+#define PROTOCOL_REF_NAME "66c0dc8e-db62-489d-90c3-8e3d614afb8e"
+
+#endif /* _LUA_PROTOCOL_H_ */

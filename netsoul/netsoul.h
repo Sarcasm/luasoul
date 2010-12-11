@@ -27,28 +27,24 @@ typedef struct netsoulSession  netsoulSession;
 
 typedef struct
 {
-  int           (*new_msg)(netsoulSession *N, void *data, const char *login,
-                           const char *msg);
-  int           (*typing_start)(netsoulSession *N, void *data,
-                                const char *login);
-  int           (*typing_end)(netsoulSession *N, void *data,
-                              const char *login);
-  int           (*login)(netsoulSession *N, void *data, const char *login);
-  int           (*logout)(netsoulSession *N, void *data, const char *login);
-  int           (*status_changed)(netsoulSession *N, void *data,
-                                  const char *login, const char *status);
-  int           (*unknow_event)(netsoulSession *N, void *data,
-                                const char *msg);
+  int           (*new_msg)(void *data, const char *login, const char *msg);
+  int           (*typing_start)(void *data, const char *login);
+  int           (*typing_end)(void *data, const char *login);
+  int           (*login)(void *data, const char *login);
+  int           (*logout)(void *data, const char *login);
+  int           (*status_changed)(void *data, const char *login,
+                                  const char *status);
+  int           (*unknow_event)(void *data, const char *msg);
 }                netsoulCallbacks;
 
 typedef struct
 {
-  char             *login;      /* default $USER                           */
-  char             *socks_pass; /* socks password (for md5 authentication) */
-  char             *userdata;   /* default 'LuaSoul v0.42'                 */
-  char             *location;   /* default '-'                             */
-  char             *server;     /* default 'ns-server.epita.fr'            */
-  char             *port;       /* default 4242                            */
+  const char       *login;      /* default $USER                           */
+  const char       *socks_pass; /* socks password (for md5 authentication) */
+  const char       *userdata;   /* default 'LuaSoul v0.42'                 */
+  const char       *location;   /* default '-'                             */
+  const char       *server;     /* default 'ns-server.epita.fr'            */
+  const char       *port;       /* default 4242                            */
   netsoulCallbacks  callbacks;
 }               netsoulConfig;
 

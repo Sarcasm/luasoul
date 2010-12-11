@@ -51,7 +51,7 @@ static int      netsoul_handle_msg(netsoulSession *N,
   if (tmp != NULL)
     *tmp = 0; /* don't care dst={...} */
 
-  return N->callbacks.new_msg(N, data, login, netsoul_url_decode(msg));
+  return N->callbacks.new_msg(data, login, netsoul_url_decode(msg));
 }
 
 static int      netsoul_handle_typing_start(netsoulSession *N,
@@ -62,7 +62,7 @@ static int      netsoul_handle_typing_start(netsoulSession *N,
   UNUSED(msg);
 
   return (N->callbacks.typing_start == NULL) ? 0
-    : N->callbacks.typing_start(N, data, login);
+    : N->callbacks.typing_start(data, login);
 }
 
 static int      netsoul_handle_typing_end(netsoulSession *N,
@@ -73,7 +73,7 @@ static int      netsoul_handle_typing_end(netsoulSession *N,
   UNUSED(msg);
 
   return (N->callbacks.typing_end == NULL) ? 0
-    : N->callbacks.typing_end(N, data, login);
+    : N->callbacks.typing_end(data, login);
 }
 
 static int      netsoul_handle_login(netsoulSession *N,
@@ -84,7 +84,7 @@ static int      netsoul_handle_login(netsoulSession *N,
   UNUSED(msg);
 
   return (N->callbacks.login == NULL) ? 0
-    : N->callbacks.login(N, data, login);
+    : N->callbacks.login(data, login);
 }
 
 static int      netsoul_handle_logout(netsoulSession *N,
@@ -95,7 +95,7 @@ static int      netsoul_handle_logout(netsoulSession *N,
   UNUSED(msg);
 
   return (N->callbacks.logout == NULL) ? 0
-    : N->callbacks.logout(N, data, login);
+    : N->callbacks.logout(data, login);
 }
 
 static int      netsoul_handle_state(netsoulSession *N,
@@ -112,7 +112,7 @@ static int      netsoul_handle_state(netsoulSession *N,
   status[i] = '\0';
 
   return (N->callbacks.status_changed == NULL) ? 0
-    : N->callbacks.status_changed(N, data, login, status);
+    : N->callbacks.status_changed(data, login, status);
 }
 
 typedef struct
@@ -206,7 +206,7 @@ static int      netsoul_handle_user_cmd(netsoulSession *N,
 
   /* shouldn't happen */
   return (N->callbacks.unknow_event == NULL) ? 0
-    : N->callbacks.unknow_event(N, data, msg);
+    : N->callbacks.unknow_event(data, msg);
 }
 
 typedef struct
@@ -245,7 +245,7 @@ int             netsoul_event_handler(netsoulSession *N, void *data)
 
   /* unknow message */
   if (N->callbacks.unknow_event != NULL)
-    return N->callbacks.unknow_event(N, data, msg);
+    return N->callbacks.unknow_event(data, msg);
 
   return 0;                     /* no callback -> success */
 }

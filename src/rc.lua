@@ -1,8 +1,8 @@
 -- Multiline header
 header = ([=[
 
-	|    _  _ _    | 
-	||_|(_|_\(_)|_||
+        |    _  _ _    | 
+        ||_|(_|_\(_)|_||
 ]=])
 
 -- http://www.reddit.com/r/reddit.com/comments/87gf7/notice_how_theyre_starting_to_crack_down_on_the/c08h5lu
@@ -22,23 +22,6 @@ header = ([=[
 
 I ♥ you
 
- .'"'.        ___,,,___        .'``.
-: (\  `."'"```         ```"'"-'  /) ;
- :  \                         `./  .'
-  `.                            :.'
-    /       __)        __)      \
-
-   |        (●)       (●)        |
-   |         /         \         |
-   |       /             \       |
-    \     |      .-.      |     /
-     `.   | . . /   \ . . |   .'
-       `-._\.'.(     ).'./_.-'
-           `\'  `._.'  '/'
-             `. --'-- .'
-               `-...-'
-
-
                ("\ '' /").___..--' ' "`-._  
                `●_ ●  )   `-.  (       ).`-.__.`) 
                (_Y_.)'    ._   )  `._ `. ``-..-' 
@@ -52,14 +35,12 @@ function luasoul_error (msg)
    io.stderr:write(msg)
 end
 
+not_typing = true
+
 buddy_list = {
-   "login_1",
-   "login_2",
-   "login_3",
-   "login_4",
-   "login_5",
-   "login_6",
-   "login_7",
+   "chiron_f",
+   "papin_g",
+   "senech_c",
 }
 
 local width, height = get_screen_size()
@@ -67,14 +48,14 @@ local HISTSIZE = height -- one page history
 
 -- Color value
 local colors = {
-   BLACK	= 0,
-   RED		= 1,
-   GREEN	= 2,
-   YELLOW	= 3,
-   BLUE		= 4,
-   MAGENTA	= 5,
-   CYAN		= 6,
-   WHITE	= 7,
+   BLACK        = 0,
+   RED          = 1,
+   GREEN        = 2,
+   YELLOW       = 3,
+   BLUE         = 4,
+   MAGENTA      = 5,
+   CYAN         = 6,
+   WHITE        = 7,
 }
 
 -- Set the window title
@@ -85,16 +66,16 @@ local colors = {
 local TERM = os.getenv("TERM") or ""
 -- rxvt-unicode
 if string.find(TERM, "rxvt") then
-   define_key("Oa",	"C-<up>")
-   define_key("Ob",	"C-<down>")
-   define_key("Od",	"C-<left>")
-   define_key("Oc",	"C-<right>")
-   define_key("[b",	"S-<down>")
-   define_key("[a",	"S-<up>")
-   define_key("[7^",	"C-<home>")
-   define_key("[8^",	"C-<end>") -- if not def it's <clearline>
-   define_key("[5^",	"C-<PageUp>")
-   define_key("[6^",	"C-<PageDown>")
+   define_key("Oa",   "C-<up>")
+   define_key("Ob",   "C-<down>")
+   define_key("Od",   "C-<left>")
+   define_key("Oc",   "C-<right>")
+   define_key("[b",   "S-<down>")
+   define_key("[a",   "S-<up>")
+   define_key("[7^",  "C-<home>")
+   define_key("[8^",  "C-<end>") -- if not def it's <clearline>
+   define_key("[5^",  "C-<PageUp>")
+   define_key("[6^",  "C-<PageDown>")
 
       -- Xterm
 else if string.find(TERM, "xterm") then
@@ -145,9 +126,9 @@ function write_line (n)
       tab_bar:addstr(" | ")
       if i == n
       then
-	 tab_bar:print_colored(b[i], tab_focus_style)
+         tab_bar:print_colored(b[i], tab_focus_style)
       else
-      	 tab_bar:addstr(b[i])
+         tab_bar:addstr(b[i])
       end
    end
    if n == #buddy_list then
@@ -167,7 +148,7 @@ function init_tab_bar ()
    end
 end
 init_tab_bar()
-tab_bar:scroll(#buddy_list)	-- focus first in list
+tab_bar:scroll(#buddy_list)     -- focus first in list
 tab_bar:refresh()
 
 -- Message box
@@ -209,7 +190,7 @@ function window_resize()
    local width, height = get_screen_size()
 
    message_box:resize(width, height - 3)
-   message_box:move(0, 1)	-- useless ?
+   message_box:move(0, 1)       -- useless ?
    message_box:addstr("width = " .. tostring(width) .. "\nheight = " .. tostring(height) .. "\n")
 
    status_bar:resize(width, 1)
@@ -263,104 +244,181 @@ do
 
       if t == "function"
       then
-	 status_bar:addstr(key .. " ")
-	 status_bar:refresh()
-	 -- ugly clear...
-	 status_bar:addstr("\n")
-	 k[key]()
-	 return true
+         status_bar:addstr(key .. " ")
+         status_bar:refresh()
+         -- ugly clear...
+         status_bar:addstr("\n")
+         k[key]()
+         return true
       end
 
       if t == "table"
       then
-	 status_bar:addstr(key .. " ")
-	 status_bar:refresh()
-	 k = k[key]
-	 return true
+         status_bar:addstr(key .. " ")
+         status_bar:refresh()
+         k = k[key]
+         return true
       end
       status_bar:refresh()
       k = keytable
       return false
    end
 end
-   
+
+
+-- START NETSOUL
+ns, err_msg = Netsoul{
+   socks_pass = os.getenv("SOCKS_PASS"),
+   location = "Ici et la",
+}
+
+function ns:new_msg (login, msg)
+   message_box:print_colored(os.date("%H:%M"), hour_style)
+   message_box:print_colored(" - " .. login .. ": ", me_style)
+   message_box:print_colored(msg .. "\n", text_style)
+   message_box:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+function ns:typing_start (login)
+   status_bar:addstr('\n')
+   status_bar:addstr(login .. " is typing...")
+   status_bar:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+function ns:typing_end (login)
+   status_bar:addstr('\n')      -- clear
+   status_bar:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+function ns:login (login)
+   status_bar:addstr('\n')
+   status_bar:addstr(login .. " has just log in.")
+   status_bar:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+function ns:logout (login)
+   status_bar:addstr('\n')
+   status_bar:addstr(login .. " has just log out.")
+   status_bar:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+
+function ns:status_changed (login, new_status)
+   status_bar:addstr('\n')
+   status_bar:addstr(login .. " is now " .. new_status)
+   status_bar:refresh()
+   input_field:refresh()        -- restore cursor...
+end
+
+function ns:unknow_event (msg)
+   luasoul_error("unknow msg from Netsoul server: " .. msg)
+end
+
+if not ns
+then
+   luasoul_error(err_msg or "Putain")
+else
+   if ns:connect() == true
+   then
+      for _, bud in ipairs(buddy_list)
+      do
+         ns:spy_user(bud)
+         message_box:addstr("spy " .. bud .. ".\n")
+         message_box:refresh()
+      end
+
+      message_box:print_colored("Connected !\n", text_style)
+      message_box:refresh()
+      input_field:refresh()     -- restore cursor...
+   end
+end
+
 -- START KEY BINDING
 -- cursor motion & co
-bind("<right>",		function () input_field.index = input_field.index + 1	end)
-bind("<left>",		function () input_field.index = input_field.index - 1	end)
-bind("<up>",		function () message_box:scroll(1)			end)
-bind("<down>",		function () message_box:scroll(-1)			end)
-bind("<home>",		function () input_field.index = 0			end)
-bind("<end>",		function () input_field.index = #input_field.buff + 1	end)
-bind("<PageUp>",	function () message_box:scroll(height)			end)
-bind("<PageDown>",	function () message_box:scroll(-height)			end)
-bind("<delete>",	function () input_field:delch()				end)
-bind("<backspace>",	function ()
-			   if input_field.index == 1 then return end
-			   input_field.index = input_field.index - 1
-			   input_field:delch()
-			end)
-bind("C-y",		function () input_field:addstr(kill_ring)		end)
+bind("<right>",         function () input_field.index = input_field.index + 1   end)
+bind("<left>",          function () input_field.index = input_field.index - 1   end)
+bind("<up>",            function () message_box:scroll(1)                       end)
+bind("<down>",          function () message_box:scroll(-1)                      end)
+bind("<home>",          function () input_field.index = 0                       end)
+bind("<end>",           function () input_field.index = #input_field.buff + 1   end)
+bind("<PageUp>",        function () message_box:scroll(height)                  end)
+bind("<PageDown>",      function () message_box:scroll(-height)                 end)
+bind("<delete>",        function () input_field:delch()                         end)
+bind("<backspace>",     function ()
+                           if input_field.index == 1 then return end
+                           input_field.index = input_field.index - 1
+                           input_field:delch()
+                        end)
+bind("C-y",             function () input_field:addstr(kill_ring)               end)
 
-bind("C-x C-z",		function () suspend()					end)
+bind("C-x C-z",         function () suspend()                                   end)
+bind("C-x C-c",         function () quit()                                      end)
 
-bind("M-<right>",	function ()
-			   local i = input_field.index
-			   local buff = input_field.buff
-			   -- find next space
-			   local f = string.find(buff, "%S%s", i)
-			   if f then input_field.index = f + 1
-			   else
-			      input_field.index = #buff + 1
-			   end
-			end)
+bind("M-<right>",       function ()
+                           local i = input_field.index
+                           local buff = input_field.buff
+                           -- find next space
+                           local f = string.find(buff, "%S%s", i)
+                           if f then input_field.index = f + 1
+                           else
+                              input_field.index = #buff + 1
+                           end
+                        end)
 
 -- not really beautiful...
-bind("M-<left>",	function ()
-			   local i = input_field.index -1
-			   local buff = input_field.buff
+bind("M-<left>",        function ()
+                           local i = input_field.index -1
+                           local buff = input_field.buff
 
-			   local last_match = 1
-			   local f = 1
-			   -- find next space
-			   while true do
-			      f = (string.find(buff, "%s%S", f) or i) + 1
-			      if f > i
-			      then
-				 input_field.index = last_match
-				 return
-			      end
-			      last_match = f
-			   end
-			end)
+                           local last_match = 1
+                           local f = 1
+                           -- find next space
+                           while true do
+                              f = (string.find(buff, "%s%S", f) or i) + 1
+                              if f > i
+                              then
+                                 input_field.index = last_match
+                                 return
+                              end
+                              last_match = f
+                           end
+                        end)
 
-bind("C-<left>",	function () tab_bar:scroll(1)			end)
-bind("C-<right>",	function () tab_bar:scroll(-1)			end)
+bind("C-<left>",        function () tab_bar:scroll(1)                   end)
+bind("C-<right>",       function () tab_bar:scroll(-1)                  end)
 
 -- Enter
-bind("RET",		function ()
-			   message_box:print_colored(os.date("%H:%M"), hour_style)
-			   message_box:print_colored(" - me: ", me_style)
-			   local msg = input_field.buff
-			   -- Have fun !
-			   -- http://en.wikipedia.org/wiki/Interrobang
-			   -- http://superuser.com/questions/52671/how-do-i-create-unicode-smilies-like-
-			   msg = msg:gsub("?!", "‽")
-			   msg = msg:gsub(":%)", "☺")
-			   msg = msg:gsub("0_o", "ō_ō`")
-			   message_box:print_colored(msg .. "\n", text_style)
-			   input_field:erase() -- delete the content of the buffer
-			   message_box:refresh()
-			end)
-bind("C-k",		function ()
-			   local tmp = input_field:remove(#input_field.buff) or ""
-			   if #tmp > 0 then kill_ring = tmp end
-			end)
-bind("C-l",		function ()
-			   clear()
-			   status_bar:refresh()
-			   message_box:refresh()
-			end)
+bind("RET",             function ()
+                           message_box:print_colored(os.date("%H:%M"), hour_style)
+                           message_box:print_colored(" - me: ", me_style)
+                           local msg = input_field.buff
+                           -- Have fun !
+                           -- http://en.wikipedia.org/wiki/Interrobang
+                           -- http://superuser.com/questions/52671/how-do-i-create-unicode-smilies-like-
+                           msg = msg:gsub("?!", "‽")
+                           msg = msg:gsub(":%)", "☺")
+                           msg = msg:gsub("0_o", "ō_ō`")
+                           message_box:print_colored(msg .. "\n", text_style)
+                           input_field:erase() -- delete the content of the buffer
+                           message_box:refresh()
+                           ns:send("papin_g", msg)
+                           ns:typing_end("papin_g")
+                           not_typing = true
+                        end)
+bind("C-k",             function ()
+                           local tmp = input_field:remove(#input_field.buff) or ""
+                           if #tmp > 0 then kill_ring = tmp end
+                        end)
+bind("C-l",             function ()
+                           clear()
+                           status_bar:refresh()
+                           message_box:refresh()
+                        end)
 -- END KEY BINDING
 
 -- keyboard input is received
@@ -369,10 +427,15 @@ function key_received(val, name, printable)
    then
       if printable
       then
-   	 input_field:addch(name)
+         input_field:addch(name)
+         if not_typing
+         then
+            ns:typing_start("papin_g")
+            not_typing = false
+         end
       else
-	 message_box:addstr(name .. '\n')
-	 message_box:refresh()
+         message_box:addstr(name .. '\n')
+         message_box:refresh()
       end
    end   
    input_field:refresh()

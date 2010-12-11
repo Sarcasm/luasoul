@@ -23,13 +23,14 @@
 #include "lua/lua_utils.h"
 
 /* C-Lua stuff */
-void	init_lua_ui(lua_State *L);
-int	lui_handle_input(lua_State *L);
+void    init_lua_ui(lua_State *L);
+int     lui_handle_input(lua_State *L);
 
 /* Lua functions */
-int	lui_get_screen_size(lua_State *L);
-int	lui_clear(lua_State *L);
-int	lui_suspend(lua_State *L);
-int	lui_define_key(lua_State *L);
+int     lui_get_screen_size(lua_State *L);
+int     lui_clear(lua_State *L);
+int     lui_quit(lua_State *L);
+int     lui_suspend(lua_State *L);
+int     lui_define_key(lua_State *L);
 
 #endif /* _LUA_UI_H_ */

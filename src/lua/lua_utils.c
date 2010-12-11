@@ -22,15 +22,16 @@
 #include <string.h>
 #include <stdarg.h>
 #include "lua_ui.h"
+#include "lua_protocol.h"
 #include "lua/lua_utils.h"
 
 /**
  * Create the lua environnement.
  * @return L
  */
-lua_State	*load_lua(void)
+lua_State       *load_lua(void)
 {
-  lua_State	*L;
+  lua_State     *L;
 
   L = lua_open();
   if (L == NULL)
@@ -41,6 +42,7 @@ lua_State	*load_lua(void)
   /* open standard libs */
   luaL_openlibs(L);
   init_lua_ui(L);
+  init_lua_protocol(L);
 
   return L;
 }
@@ -49,10 +51,10 @@ lua_State	*load_lua(void)
  * Load configuration file.
  * @return L
  */
-int		load_config(lua_State *L)
+int             load_config(lua_State *L)
 {
-  char		*rc_file;
-  int		success;
+  char          *rc_file;
+  int           success;
 
   rc_file = get_rc();
   if (rc_file != NULL)
@@ -60,7 +62,7 @@ int		load_config(lua_State *L)
       success = ! luaL_loadfile(L, rc_file) && ! lua_pcall(L, 0, 0, 0);
       free(rc_file);
       if (success)
-	return 0;
+        return 0;
       error("%s.\n", lua_tostring(L, -1)); /* error raised on stack */
     }
   lua_close(L);
@@ -71,9 +73,9 @@ int		load_config(lua_State *L)
  * Push a list of new lua functions
  * @param A pointer to a null terminated list
  */
-void		register_function(lua_State *L, t_lua_function functions[])
+void            register_function(lua_State *L, t_lua_function functions[])
 {
-  int		i = 0;
+  int           i = 0;
 
   while (functions[i].name != NULL)
     {
@@ -89,36 +91,36 @@ void		register_function(lua_State *L, t_lua_function functions[])
 
   TODO: Return the number of results sent to the Lua VM
 */
-void		call_lua_function(lua_State	*L,
-				  const char	*func,
-				  const char	*sig,
-				  ...)
+void            call_lua_function(lua_State     *L,
+                                  const char    *func,
+                                  const char    *sig,
+                                  ...)
 {
-  va_list	vl;
-  int		narg;		/* number of arguments  */
-  int		nres;		/* results */
+  va_list       vl;
+  int           narg;           /* number of arguments  */
+  int           nres;           /* results */
     
   va_start(vl, sig);
-  lua_getglobal(L, func);	/* get function */
+  lua_getglobal(L, func);       /* get function */
     
   /* push arguments */
   narg = 0;
-  while (*sig && *sig != '>') {	/* push arguments */
+  while (*sig && *sig != '>') { /* push arguments */
     switch (*sig++) {
     
-    case 'd':			/* double argument */
+    case 'd':                   /* double argument */
       lua_pushnumber(L, va_arg(vl, double));
       break;
     
-    case 'i':			/* int argument */
+    case 'i':                   /* int argument */
       lua_pushnumber(L, va_arg(vl, int));
       break;
     
-    case 's':			/* string argument */
+    case 's':                   /* string argument */
       lua_pushstring(L, va_arg(vl, char *));
       break;
 
-    case 'b':			/* boolean argument */
+    case 'b':                   /* boolean argument */
       lua_pushboolean(L, va_arg(vl, int));
       break;
     
@@ -134,36 +136,36 @@ void		call_lua_function(lua_State	*L,
     sig++;
     
   /* do the call */
-  nres = strlen(sig);		/* number of expected results */
-  if (lua_pcall(L, narg, nres, 0) != 0)	/* do the call */
+  nres = strlen(sig);           /* number of expected results */
+  if (lua_pcall(L, narg, nres, 0) != 0) /* do the call */
     error("error running function `%s': %s",
-	  func, lua_tostring(L, -1));
+          func, lua_tostring(L, -1));
   /* retrieve results */
-  nres = -nres;			/* stack index of first result */
-  while (*sig) {		/* get results */
+  nres = -nres;                 /* stack index of first result */
+  while (*sig) {                /* get results */
     switch (*sig++) {
     
-    case 'd':			/* double result */
+    case 'd':                   /* double result */
       if (!lua_isnumber(L, nres))
-	error("wrong result type");
+        error("wrong result type");
       *va_arg(vl, double *) = lua_tonumber(L, nres);
       break;
     
-    case 'i':			/* int result */
+    case 'i':                   /* int result */
       if (!lua_isnumber(L, nres))
-	error("wrong result type");
+        error("wrong result type");
       *va_arg(vl, int *) = (int)lua_tonumber(L, nres);
       break;
     
-    case 's':			/* string result */
+    case 's':                   /* string result */
       if (!lua_isstring(L, nres))
-	error("wrong result type");
+        error("wrong result type");
       *va_arg(vl, const char **) = lua_tostring(L, nres);
       break;
 
-    case 'b':			/* boolean result */
+    case 'b':                   /* boolean result */
       if (!lua_isboolean(L, nres))
-	error("wrong result type");
+        error("wrong result type");
       *va_arg(vl, int *) = (int)lua_tonumber(L, nres);
       break;
     
@@ -178,15 +180,15 @@ void		call_lua_function(lua_State	*L,
 
 /**
  * Get a wide character string and store the length.
- * @param n	the index of the lua string to convert
+ * @param n     the index of the lua string to convert
  * @param len
- * @return	the wide character string
+ * @return      the wide character string
  */
-wchar_t		*luasoul_tolwcstr(lua_State *L, int n, size_t *len)
+wchar_t         *luasoul_tolwcstr(lua_State *L, int n, size_t *len)
 {
-  const char	*str;
-  size_t	 lstr;
-  wchar_t	*wstr;
+  const char    *str;
+  size_t         lstr;
+  wchar_t       *wstr;
 
   luaL_checktype(L, n, LUA_TSTRING);
   str = lua_tolstring(L, n, &lstr);
@@ -196,24 +198,24 @@ wchar_t		*luasoul_tolwcstr(lua_State *L, int n, size_t *len)
     {
       *len = mbstowcs(wstr, str, lstr);
       if (*len == (size_t) -1)
-	{
-	  free(wstr);
-	  return NULL;
-	}
+        {
+          free(wstr);
+          return NULL;
+        }
       if (*len == lstr)
-	wstr[lstr] = L'\0';
+        wstr[lstr] = L'\0';
     }
   return wstr;
 }
 
 /**
  * Get a wide character string.
- * @param n	the index of the lua string to convert
- * @return	the wide character string
+ * @param n     the index of the lua string to convert
+ * @return      the wide character string
  */
-wchar_t		*luasoul_towcstr(lua_State *L, int n)
+wchar_t         *luasoul_towcstr(lua_State *L, int n)
 {
-  size_t	len;
+  size_t        len;
 
   return luasoul_tolwcstr(L, n, &len);
 }
@@ -222,9 +224,9 @@ wchar_t		*luasoul_towcstr(lua_State *L, int n)
  * Call a Lua function when an error occur.
  * This function is protected against infinite recursion.
  */
-int		luasoul_error(lua_State *L, const char *msg)
+int             luasoul_error(lua_State *L, const char *msg)
 {
-  static int	in = 0;
+  static int    in = 0;
 
   /* already in the function */
   if (in)
@@ -243,18 +245,18 @@ int		luasoul_error(lua_State *L, const char *msg)
 }
 
 /* thx `luaL_checkudata()' in `lua-5.1.4/src/lauxlib.c:124' */
-void		*luasoul_toclass(lua_State *L, int n, const char *tname)
+void            *luasoul_toclass(lua_State *L, int n, const char *tname)
 {
-  void		**udata = lua_touserdata(L, n);
+  void          **udata = lua_touserdata(L, n);
 
   if (udata != NULL && lua_getmetatable(L, n))
     {
       lua_getfield(L, LUA_REGISTRYINDEX, tname);
       if (lua_rawequal(L, -1, -2))
-	{
-	  lua_pop(L, 2);	/* remove both metatables */
-	  return *udata;
-	}
+        {
+          lua_pop(L, 2);        /* remove both metatables */
+          return *udata;
+        }
     }
   return NULL;
 }
@@ -262,10 +264,10 @@ void		*luasoul_toclass(lua_State *L, int n, const char *tname)
 /**
  * Push a wide character string on the stack.
  */
-int		luasoul_pushwstring(lua_State *L, wchar_t *wstr)
+int             luasoul_pushwstring(lua_State *L, wchar_t *wstr)
 {
-  int		len = MB_LEN_MAX * wcslen(wstr);
-  char		*buff = malloc((len + 1) * sizeof(*buff));
+  int           len = MB_LEN_MAX * wcslen(wstr);
+  char          *buff = malloc((len + 1) * sizeof(*buff));
 
   if (buff == NULL || wcstombs(buff, wstr, len) == (size_t) -1)
     {

@@ -32,14 +32,14 @@
    2: the accessed key
    3: the value to set (optional, just for setters)
 */
-int		lua_oo_accessors(lua_State *L, const t_index_wrap *p)
+int             lua_oo_accessors(lua_State *L, const t_index_wrap *p)
 {
-  const char	*key = luaL_checkstring(L, 2);
-  const size_t	len = strlen(key);
+  const char   *key = luaL_checkstring(L, 2);
+  const size_t  len = strlen(key);
 
   for (; p->name != NULL; p++)
     if (p->len == len &&
-	! strcmp(p->name, key))
+        ! strcmp(p->name, key))
       return p->func(L);
-  return 0;			/* nothing is returned, TODO: maybe send nil ? */
+  return 0;                     /* nothing is returned, TODO: maybe send nil ? */
 }

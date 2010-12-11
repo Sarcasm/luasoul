@@ -39,6 +39,7 @@ t_lua_function                          lua_ui_functions[]=
     {"get_screen_size", lui_get_screen_size},
     {"clear",           lui_clear},
     {"suspend",         lui_suspend},
+    {"quit",            luasoul_quit},
     {"Style",           lui_new_style},
     {"Window",          lui_new_window},
     {"Chatbox",         lui_new_chatbox},
@@ -78,8 +79,10 @@ int             lui_get_screen_size(lua_State *L)
 /**
  * Clear the screen
  */
-int             lui_clear(lua_State *L UNUSED_ATTRIBUTE)
+int             lui_clear(lua_State *L)
 {
+  UNUSED(L);
+
   wclear(stdscr);
   wnoutrefresh(stdscr);
   return 0;

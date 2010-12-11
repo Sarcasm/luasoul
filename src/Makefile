@@ -24,15 +24,17 @@ NS_DIR		= ../netsoul/
 INC		=  -I./		\
 		-I$(NS_DIR)
 
-SRCS		= ./lua_ui.c		\
-		./utils.c		\
-		./lua/ooutils.c		\
+SRCS		= ./lua_ui.c	\
+		./lua_protocol.c	\
+		./utils.c	\
+		./protocol/ns.c	\
+		./lua/ooutils.c	\
 		./lua/lua_utils.c	\
-		./ui/window.c		\
-		./ui/chatbox.c		\
-		./ui/style.c		\
-		./ui/input.c		\
-		./ui/ui_utils.c		\
+		./ui/window.c	\
+		./ui/chatbox.c	\
+		./ui/style.c	\
+		./ui/input.c	\
+		./ui/ui_utils.c	\
 		./luasoul.c
 
 OBJ		= $(SRCS:%.c=%.o)

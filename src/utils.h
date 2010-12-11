@@ -24,7 +24,7 @@
 
 #define RC_NAME "rc.lua"        /* configuration file name */
 
-#define UNUSED_ATTRIBUTE        __attribute__ ((__unused__))
+#define UNUSED(x)        (void) x
 
 /* FIXME: suround this declaration by `#ifdef' */
 char            *luasoul_strndup(const char *s, size_t n);

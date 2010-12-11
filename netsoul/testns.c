@@ -46,78 +46,63 @@
 
 #define UNUSED(x)       (void) x
 
-int             ns_new_msg(netsoulSession *N, void *data,
-                           const char *login,
-                           const char *msg)
+int             ns_new_msg(void *data, const char *login, const char *msg)
 {
   char          buff[1024];
 
-  UNUSED(N);
   UNUSED(data);
 
   snprintf(buff, 1023, "%s say: '%s'", login, msg);
   msg_in(buff);
-
   return 0;
 }
 
-int             ns_typing_start(netsoulSession *N, void *data, const char *login)
+int             ns_typing_start(void *data, const char *login)
 {
-  UNUSED(N);
   UNUSED(data);
 
   printf("[0;32m%s is typing...[0m\n", login);
-
   return 0;
 }
 
-int             ns_typing_end(netsoulSession *N, void *data, const char *login)
+int             ns_typing_end(void *data, const char *login)
 {
-  UNUSED(N);
   UNUSED(data);
 
   printf("[0;32m%s typing finish...[0m\n", login);
-
   return 0;
 }
 
-int             ns_login(netsoulSession *N, void *data, const char *login)
+int             ns_login(void *data, const char *login)
 {
-  UNUSED(N);
   UNUSED(data);
 
   printf("[0;32m%s login...[0m\n", login);
-
   return 0;
 }
 
-int             ns_logout(netsoulSession *N, void *data, const char *login)
+int             ns_logout(void *data, const char *login)
 {
-  UNUSED(N);
   UNUSED(data);
 
   printf("[0;32m%s logout...[0m\n", login);
-
   return 0;
 }
 
-int             ns_status_changed(netsoulSession *N, void *data,
-                                  const char *login, const char *status)
+int             ns_status_changed(void *data, const char *login,
+                                  const char *status)
 {
-  UNUSED(N);
   UNUSED(data);
 
   printf("[0;32m%s: status -> %s[0m\n", login, status);
   return 0;
 }
 
-int             ns_unknow(netsoulSession *N, void *data, const char *msg)
+int             ns_unknow(void *data, const char *msg)
 {
-  UNUSED(N);
   UNUSED(data);
 
   msg_in(msg);
-
   return 0;
 }
 
@@ -240,8 +225,8 @@ int             main(void)
 
   settings.login                    = NULL; /* $USER should be fine */
   settings.socks_pass               = pass;
-  settings.userdata                 = (char *) "libnetsoul test";
-  settings.location                 = (char *) "pas tres loin";
+  settings.userdata                 = "libnetsoul test";
+  settings.location                 = "pas tres loin";
   /* callbacks */
   settings.callbacks.unknow_event   = ns_unknow;
   settings.callbacks.new_msg        = ns_new_msg;

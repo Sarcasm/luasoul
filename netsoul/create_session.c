@@ -76,7 +76,7 @@ netsoulSession          *netsoul_create_session(netsoulConfig  *settings,
                                                 const char    **err_msg)
 {
   netsoulSession        *N = malloc(sizeof(*N));
-  char                  *tmp;
+  const char            *tmp;
 
   if (N == NULL)
     {
@@ -98,10 +98,9 @@ netsoulSession          *netsoul_create_session(netsoulConfig  *settings,
   /* get socks password for md5 authentication */
   if (settings->socks_pass == NULL)
     {
-      *N->socks_pass = '\0';
-      /* *err_msg = "socks password required."; */
-      /* free(N); */
-      /* return NULL;       */
+      *err_msg = "socks password required.";
+      free(N);
+      return NULL;
     }
   else
     strncpy(N->socks_pass, settings->socks_pass, NETSOUL_SOCKS_SIZE -1);

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define	_POSIX_SOURCE		/* for kill() */
+#define _POSIX_SOURCE           /* for kill() */
 #include <sys/types.h>
 #include <signal.h>
 
@@ -31,24 +31,25 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include "lua_protocol.h"
 #include "lua_ui.h"
 
 /* not really beautiful...for signal handling */
-int			globalFlag = 0;
+int                     globalFlag = 0;
 
 /*
   this function just toggle a the global int flag
 */
-void			luasoul_sighandler(int sig)
+void                    luasoul_sighandler(int sig)
 {
   globalFlag = sig;
 }
 
-void			luasoul_suspend(void)
+void                    luasoul_suspend(void)
 {
-  def_prog_mode();		/* Save the tty modes		  */
-  endwin();			/* End curses mode temporarily	  */
-  kill(getpid(), SIGTSTP);	/* Stop Luasoul			  */
+  def_prog_mode();              /* Save the tty modes             */
+  endwin();                     /* End curses mode temporarily    */
+  kill(getpid(), SIGTSTP);      /* Stop Luasoul                   */
 }
 
 
@@ -56,22 +57,34 @@ void			luasoul_suspend(void)
   SIGCONT handling taken from ncurses distribution:
   ncurses-5.7/ncurses/tty/lib_tstp.c
 */
-void			luasoul_resume(void)
+void                    luasoul_resume(void)
 {
   flushinp();
   def_shell_mode();
   doupdate();
 }
 
+/**
+ * Exit luasoul.
+ */
+int             luasoul_quit(lua_State *L)
+{
+  lua_close(L);
+  endwin();
+
+  _nc_free_and_exit(0);
+  return 0;
+}
+
 /*
   Some tips found in the ncurses distribution:
   ncurses-5.7/test/view.c#adjust(int sig)
 */
-void			luasoul_resize(lua_State *L)
+void                    luasoul_resize(lua_State *L)
 {
-  int			row;
-  int			col;
-  struct winsize	size;
+  int                   row;
+  int                   col;
+  struct winsize        size;
 
   getmaxyx(stdscr, row, col);
 
@@ -79,7 +92,7 @@ void			luasoul_resize(lua_State *L)
       && (size.ws_row != row || size.ws_col != col))
     {
       resize_term(size.ws_row, size.ws_col);
-      wrefresh(curscr);		/* Linux needs this */
+      wrefresh(curscr);         /* Linux needs this */
       call_lua_function(L, "window_resize", "");
       doupdate();
     }
@@ -89,19 +102,14 @@ void			luasoul_resize(lua_State *L)
   FIXME:
   The Loop is ugly for the moment, it's just a draft
 */
-void			lOOoop(lua_State *L)
+void                    lOOoop(lua_State *L)
 {
-  fd_set		activefds;
-  fd_set		readfds;
-  int			nfds;
-  int			nb_fds;
+  const int             protocol_ref = get_protocol_ref(L);
+  fd_set                readfds;
+  int                   nfds;
+  int                   nb_fds;
   /* SIGWINCH handler */
-  struct sigaction	sa;
-
-  FD_ZERO(&activefds);
-  FD_SET(STDIN_FILENO, &activefds);
-
-  nfds = STDIN_FILENO + 1;
+  struct sigaction      sa;
 
   /*
     set the SIGWINCH handler
@@ -119,38 +127,46 @@ void			lOOoop(lua_State *L)
 
   while (1)
     {
-      /* FIXME: is it really correct to do that ? */
-      readfds = activefds;
+      FD_ZERO(&readfds);
+      nfds = get_fd_list(L, &readfds, protocol_ref);
+      
+      FD_SET(STDIN_FILENO, &readfds);
+
+      if (STDIN_FILENO + 1 > nfds)
+        nfds = STDIN_FILENO + 1;
 
       /*
-	select returns 0 if timeout, 1 if input available, -1 if error.
-	Set timeout to NULL for blocking operation
+        select returns 0 if timeout, 1 if input available, -1 if error.
+        Set timeout to NULL for blocking operation
       */
       nb_fds = select(nfds, &readfds, NULL, NULL, NULL);
 
       /* handle lost connection and SIGWINCH */
       if (nb_fds <= 0)
-	{
-	  if (globalFlag == SIGWINCH)
-	    {
-	      luasoul_resize(L);
-	      globalFlag = 0;
-	    }
-	  continue ;
-	}
+        {
+          if (globalFlag == SIGWINCH)
+            {
+              luasoul_resize(L);
+              globalFlag = 0;
+            }
+          continue ;
+        }
 
       /*
-	Event from keyboard ?
-	call lua function on root input handler
+        Event from keyboard ?
+        call lua function on root input handler
       */
       if (FD_ISSET(STDIN_FILENO, &readfds))
-	lui_handle_input(L);
+        lui_handle_input(L);
+
+      handle_protocol(L, &readfds, protocol_ref);
+
     }
 }
 
-int		main(void)
+int             main(void)
 {
-  lua_State	*L;
+  lua_State     *L;
 
   setlocale(LC_ALL, "");
 
