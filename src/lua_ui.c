@@ -1,18 +1,18 @@
 /*
  * lua_ui.c for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -353,7 +353,7 @@ int             lui_handle_input(lua_State *L)
           ret = OK;
         }
     }
-  func_key += (ret == KEY_CODE_YES || ch < 20);
+  func_key += (ret == KEY_CODE_YES || ch < 0x20);
 
   if (ret == KEY_CODE_YES)
     append_keyname(ch, name_buf, KEY_BUFSIZE -1);
@@ -377,7 +377,7 @@ int             lui_handle_input(lua_State *L)
     char        lua_name[MB_LEN_MAX * KEY_BUFSIZE];
 
     if (wcstombs(lua_name, name_buf, MB_LEN_MAX * KEY_BUFSIZE) != (size_t) -1)
-      call_lua_function(L, "key_received", "isb", ch, lua_name, strlen(lua_name), !func_key);
+      call_lua_function(L, "key_received", "sb", lua_name, !func_key);
     else
       luasoul_error(L, "Unknow input event\n");
   }

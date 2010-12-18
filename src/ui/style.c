@@ -1,18 +1,18 @@
 /*
  * style.c for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,20 +27,20 @@
   Create a new style
 
   Style{
-  normal	= true/false,
-  bold		= true/false,
-  underline	= true/false,
-  blink		= true/false,
-  standout	= true/false,
-  reverse	= true/false,
-  foreground	= <number>,
-  foreground	= <number>,
+  normal        = true/false,
+  bold          = true/false,
+  underline     = true/false,
+  blink         = true/false,
+  standout      = true/false,
+  reverse       = true/false,
+  foreground    = <color number>,
+  background    = <color number>,
   }
   TODO: Destructor, free() the pointer
 */
-int		lui_new_style(lua_State *L)
+int             lui_new_style(lua_State *L)
 {
-  t_style	*s;
+  t_style       *s;
 
   s = (t_style *) lua_newuserdata(L, sizeof(*s));
 
@@ -62,9 +62,9 @@ int		lui_new_style(lua_State *L)
   Check if value at index `n' in the stack is a Style,
   return it or raised an error.
 */
-t_style		*check_style(lua_State *L, int n)
+t_style         *check_style(lua_State *L, int n)
 {
-  t_style	*s;
+  t_style       *s;
 
   luaL_checktype(L, n, LUA_TUSERDATA);
   s = (t_style *) luaL_checkudata(L, n, STYLE_CLASS);
@@ -76,7 +76,7 @@ t_style		*check_style(lua_State *L, int n)
 /*
   Map all the fields of the class/object.
 */
-int		lui_style_register(lua_State *L)
+int             lui_style_register(lua_State *L)
 {
   luaL_newmetatable(L, STYLE_CLASS);
 
@@ -102,65 +102,65 @@ int		lui_style_register(lua_State *L)
   lua_pushliteral(L, "you are a very bad man"); /* TODO: ... */
   lua_rawset(L, -3);
 
-  lua_pop(L, 1);		/* drop metatable */
+  lua_pop(L, 1);                /* drop metatable */
   return 0;
 }
 
 /*
   This function create a new color pair.
 */
-static int	new_pair(int fg, int bg)
+static int      new_pair(int fg, int bg)
 {
-  static int	last_pair = 0;
+  static int    last_pair = 0;
 
-  init_pair(++last_pair, fg, bg);	/* skip last pair and create a new pair */
+  init_pair(++last_pair, fg, bg);       /* skip last pair and create a new pair */
   return COLOR_PAIR(last_pair);
 }
 
 /* describe an attribute with name and value */
 typedef struct
 {
-  const char	*name;
-  const int	value;
-}		t_style_attr;
+  const char    *name;
+  const int     value;
+}               t_style_attr;
 
 
-t_style_attr	attr_list[]=
+t_style_attr    attr_list[]=
   {
-    {"normal",		A_NORMAL},
-    {"bold",		A_BOLD},
-    {"underline",	A_UNDERLINE},
-    {"blink",		A_BLINK},
-    {"standout",	A_STANDOUT},
-    {"reverse",		A_REVERSE},
-    {NULL,		0}
+    {"normal",          A_NORMAL},
+    {"bold",            A_BOLD},
+    {"underline",       A_UNDERLINE},
+    {"blink",           A_BLINK},
+    {"standout",        A_STANDOUT},
+    {"reverse",         A_REVERSE},
+    {NULL,              0}
   };
 
 /**
  * transform a table to an understandable value for ncurses functions
  *
- * bool	normal
- * bool	bold
- * bool	underline
- * bool	blink
- * bool	standout
- * bool	reverse
- * int	foreground
- * int	background
+ * bool normal
+ * bool bold
+ * bool underline
+ * bool blink
+ * bool standout
+ * bool reverse
+ * int  foreground
+ * int  background
  *
  * @param: L
- * @param: n	position of the table on the stack
+ * @param: n    position of the table on the stack
  *
  * the following parameter is filled by the function
- * @param: s	attributes to turn on or off
+ * @param: s    attributes to turn on or off
  *
  * FIXME: vocabulary...?
  */
-void	table_to_style(lua_State *L, int n, t_style *s)
+void    table_to_style(lua_State *L, int n, t_style *s)
 {
-  int		i;
-  int		fg = -1;
-  int		bg = -1;
+  int           i;
+  int           fg = -1;
+  int           bg = -1;
 
   s->on = A_NORMAL;
   s->off = A_NORMAL;
@@ -174,32 +174,32 @@ void	table_to_style(lua_State *L, int n, t_style *s)
       lua_getfield(L, n, attr_list[i].name); /* get key */
 
       if (! lua_isnoneornil(L, -1) && lua_isboolean(L, -1))
-	{
-	  if (lua_toboolean(L, -1)) /* t[key] = true */
-	    s->on |= attr_list[i].value;
-	  else			/* t[key] = false */
-	    s->off |= attr_list[i].value;
-	}
+        {
+          if (lua_toboolean(L, -1)) /* t[key] = true */
+            s->on |= attr_list[i].value;
+          else                  /* t[key] = false */
+            s->off |= attr_list[i].value;
+        }
       lua_pop(L, 1);
     }
 
   /* foreground and background settings */
-  if (has_colors())		/* terminal is capable to output colors ? */
+  if (has_colors())             /* terminal is capable to output colors ? */
     {
       lua_getfield(L, n, "foreground"); /* -2 */
       lua_getfield(L, n, "background"); /* -1 */
 
       /* at least one of background/foreground property is set ? */
       if (! lua_isnil(L, -1) || ! lua_isnil(L, -2))
-  	{
-  	  if (! lua_isnil(L, -2) && lua_isnumber(L, -2)) /* fg */
-  	    fg = lua_tointeger(L, -2);
+        {
+          if (! lua_isnil(L, -2) && lua_isnumber(L, -2)) /* fg */
+            fg = lua_tointeger(L, -2);
 
-  	  if (! lua_isnil(L, -1) && lua_isnumber(L, -1)) /* bg */
-  	    bg = lua_tointeger(L, -1);
+          if (! lua_isnil(L, -1) && lua_isnumber(L, -1)) /* bg */
+            bg = lua_tointeger(L, -1);
 
-  	  s->on |= new_pair(fg, bg);
-  	}
+          s->on |= new_pair(fg, bg);
+        }
       lua_pop(L, 2);
     }
 }

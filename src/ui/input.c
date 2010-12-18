@@ -1,18 +1,18 @@
 /*
  * input.c for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -160,15 +160,14 @@ int             lui_input_get_buff(lua_State *L)
   wchar_t       *buff;
   int            len;
 
-
   luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
   pos = get_current_position(i);            /* save cursor position */
 
   /* assume i->height == 1 */
-  len = i->width * i->off;
+  len = i->width + i->off;
   buff = malloc((len + 1) * sizeof(*buff));
   len = mvwinnwstr(i->pad, 0, 0, buff, len) - 1;
-  while (len > 0 && iswspace(buff[len])) /* remove leading space characters */
+  while (len > 0 && iswspace(buff[len])) /* remove leading spaces */
     --len;
   buff[len + 1] = L'\0';
   luasoul_pushwstring(L, buff);
@@ -261,6 +260,8 @@ int             lui_input_set_index(lua_State *L)
 static const luaL_reg lui_input_instance_methods[]=
   {
     {"refresh",         lui_refresh_input},
+    {"resize",          lui_resize_input},
+    {"move",            lui_move_input},
     {"erase",           lui_erase_input},
     {"delch",           lui_delch_input},
     {"addch",           lui_addch_input},
@@ -355,6 +356,66 @@ int             lui_refresh_input(lua_State *L)
 
   luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
   refresh_input(i);
+  return 0;
+}
+
+/*
+  input:resize(width, height)
+  resize the input field
+*/
+int             lui_resize_input(lua_State *L)
+{
+  INPUT         *i;
+  const int     width = luaL_checkint(L, 2);
+  const int     height = luaL_checkint(L, 3);
+
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  if (width <= 0 && height <= 0)
+    {
+      luaL_error(L, "can't resize input: invalid dimension");
+      return 0;
+    }
+
+  i->height = height;
+  i->width  = width;
+
+  if (i->height == 1)
+    wresize(i->pad, i->height, i->width + i->off);
+  else
+    wresize(i->pad, i->height + i->off, i->width);
+
+  if (alloc_cchar_buffer(i))
+    {
+      free(i->wbuff);
+      luasoul_error(L, "can't allocate buffer input");
+      return 0;
+    }
+
+  return 0;
+}
+
+/*
+  input:move(x, y)
+  move the input field
+*/
+int             lui_move_input(lua_State *L)
+{
+  INPUT        *i;
+  int           x, y;
+
+  luasoul_checkclass(L, 1, INPUT_CLASS, i); /* get input */
+  luasoul_checkint(L, 2, x);
+  luasoul_checkint(L, 3, y);
+  if (x < 0 && y < 0)
+    {
+      luaL_error(L, "can't move input: invalid position");
+      return 0;
+    }
+  else
+    {
+      i->begin_x = x;
+      i->begin_y = y;
+    }
   return 0;
 }
 

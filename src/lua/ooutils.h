@@ -1,18 +1,18 @@
 /*
  * ooutils.h for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -62,15 +62,15 @@ int             lua_oo_accessors(lua_State *L, const t_index_wrap *p);
   Map all the fields of the class/object.
 
   __METATABLE
-                                                                        
-  __metatable is for protecting metatables. If you do not want a program 
+
+  __metatable is for protecting metatables. If you do not want a program
   to change the contents of a metatable, you set its __metatable field.
   With that, the program cannot access the metatable (and therefore cannot
   change it).
 
 
-  __INDEX 
-  
+  __INDEX
+
   When it is a function, Lua calls it with the table and the absent
   key as its arguments.
   When it is a table, Lua redoes the access in that table.

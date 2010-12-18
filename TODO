@@ -2,6 +2,9 @@
 #+STARTUP: showall
 #+AUTHOR:    Guillaume Papin
 #+EMAIL:     papin_g@epitech.net
+* Misc
+  Emacs VC command
+  http://www.badgertronics.com/writings/cvs/emacs.html
 * General [0%]
   - [ ] unicode support
         http://mail.nl.linux.org/linux-utf8/2004-08/msg00001.html
@@ -39,6 +42,8 @@
   - [ ] Netsoul for windows
         socket on windows explanation, tips
         http://tangentsoft.net/wskfaq/articles/bsd-compatibility.html
+  - [ ] Add -c/--command command
+  - [ ] use ./configure
 * Lua <-> Ncurses [0%]
   - [ ] create dialog/conversation
         a message box window and a form input field
@@ -98,6 +103,10 @@
    - [ ] buddy typing/untyping
    - [ ] new mail
          if it's possible
+   - [ ] add get_info(login)
+   - [ ] add auto-reco
+         http://www.stefan.buettcher.org/cs/conn_closed.html
+         http://articles.techrepublic.com.com/5100-10878_11-1044098.html
 * C [0%]
   - [ ] set window title
   - [ ] send WM urgent signal

@@ -1,18 +1,18 @@
 /*
  * luasoul.c for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -93,7 +93,7 @@ void                    luasoul_resize(lua_State *L)
     {
       resize_term(size.ws_row, size.ws_col);
       wrefresh(curscr);         /* Linux needs this */
-      call_lua_function(L, "window_resize", "");
+      call_lua_function(L, "luasoul_resize", "");
       doupdate();
     }
 }
@@ -129,7 +129,7 @@ void                    lOOoop(lua_State *L)
     {
       FD_ZERO(&readfds);
       nfds = get_fd_list(L, &readfds, protocol_ref);
-      
+
       FD_SET(STDIN_FILENO, &readfds);
 
       if (STDIN_FILENO + 1 > nfds)
