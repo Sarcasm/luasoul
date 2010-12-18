@@ -1,25 +1,25 @@
 /*
  * testns.c for luasoul
- * 
+ *
  * Copyright © 2010 Guillaume Papin <guillaume.papin@epitech.eu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
   Compile command:
-  gcc -I. -g -o netsoul testns.c -L. -lnetsoul
+  gcc -Wall -I. -g -o netsoul testns.c -L. -lnetsoul
 */
 
 #define _BSD_SOURCE             /* for getpass(), this file is
@@ -146,7 +146,7 @@ void                    lOOoop(netsoulSession *N)
       sockfd = netsoul_get_fd(N);
       if (sockfd != -1 && sockfd > STDIN_FILENO)
         {
-          nfds =  sockfd + 1;          
+          nfds =  sockfd + 1;
           FD_SET(sockfd, &readfds);
         }
       else
@@ -244,7 +244,7 @@ int             main(void)
       fprintf(stderr, "error ! netsoul_create_session(): %s\n", err);
       return 1;
     }
-  
+
   info("netsoul_create_session() success !");
 
   if (netsoul_connect(N, &err) == 0)
@@ -252,7 +252,7 @@ int             main(void)
       const char *buddies[] = {"papin_g", NULL};
 
       info("connected !");
-      
+
       netsoul_spy_users(N, buddies);
       info("watch list added !");
 

@@ -34,11 +34,11 @@ bind("<end>",       function ()
                     end)
 bind("<PageUp>",    function ()
                        local msg_box = ui.current.msg_box
-                       msg_box:scroll(height)
+                       msg_box:scroll(ui.height - 3)
                     end)
 bind("<PageDown>",  function ()
                        local msg_box = ui.current.msg_box
-                       msg_box:scroll(-height)
+                       msg_box:scroll(ui.height + 3)
                     end)
 bind("<delete>",    function () ui.current.input:delch()                  end)
 bind("<backspace>", function ()
